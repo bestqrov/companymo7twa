@@ -78,9 +78,9 @@ model Project {
   name     String
   isActive Boolean @default(false)
 
-  user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  settings ProjectSettings?
-  ideas    Idea[]
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  settings   ProjectSettings?
+  ideas      Idea[]
   thumbnails Thumbnail[]
 
   createdAt DateTime @default(now())
