@@ -34,4 +34,22 @@ describe("getDriveClient().uploadFile", () => {
       client.uploadFile({ name: "thumb.png", mimeType: "image/png", data: Buffer.from("x") })
     ).rejects.toThrow();
   });
+
+  it("builds a correctly structured multipart body", async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce({ ok: true, json: async () => ({ id: "drive-file-123" }) });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = getDriveClient("fake-access-token");
+    await client.uploadFile({ name: "thumb.png", mimeType: "image/png", data: Buffer.from("fake-image-bytes") });
+
+    const [, options] = fetchMock.mock.calls[0];
+    const bodyText = (options.body as Buffer).toString("utf-8");
+
+    expect(bodyText).toContain('"name":"thumb.png"');
+    expect(bodyText).toContain('"mimeType":"image/png"');
+    expect(bodyText).toContain("Content-Type: application/json");
+    expect(bodyText).toContain("Content-Type: image/png");
+    expect(bodyText).toContain("fake-image-bytes");
+    expect(options.headers["Content-Type"]).toMatch(/^multipart\/related; boundary=/);
+  });
 });

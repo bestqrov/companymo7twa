@@ -2,6 +2,8 @@
  * Uploads generated assets to a user's linked Google Drive using the
  * `drive.file` token captured at login (see src/lib/auth.ts).
  */
+import crypto from "node:crypto";
+
 export interface DriveClient {
   uploadFile(params: { name: string; mimeType: string; data: Buffer }): Promise<{ fileId: string }>;
 }
@@ -26,7 +28,7 @@ class GoogleDriveClient implements DriveClient {
   constructor(private accessToken: string) {}
 
   async uploadFile(params: { name: string; mimeType: string; data: Buffer }): Promise<{ fileId: string }> {
-    const boundary = "vifatube-upload-boundary";
+    const boundary = `vifatube-${crypto.randomBytes(16).toString("hex")}`;
     const body = buildMultipartBody(boundary, { name: params.name, mimeType: params.mimeType }, params.data, params.mimeType);
 
     const res = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart", {
@@ -43,6 +45,9 @@ class GoogleDriveClient implements DriveClient {
     }
 
     const data = await res.json();
+    if (typeof data.id !== "string") {
+      throw new Error("Google Drive upload response did not contain a file id");
+    }
     return { fileId: data.id };
   }
 }
