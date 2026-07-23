@@ -33,6 +33,18 @@ describe("fetchYoutubeTrendContext", () => {
     expect(result).toBeNull();
   });
 
+  it("returns null when the videos request fails", async () => {
+    const searchResponse = { items: [{ id: { videoId: "abc123" } }] };
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => searchResponse })
+      .mockResolvedValueOnce({ ok: false });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await fetchYoutubeTrendContext("fake-key", "coffee");
+    expect(result).toBeNull();
+  });
+
   it("returns null when the search request returns no video ids", async () => {
     const fetchMock = vi.fn().mockResolvedValueOnce({ ok: true, json: async () => ({ items: [] }) });
     vi.stubGlobal("fetch", fetchMock);

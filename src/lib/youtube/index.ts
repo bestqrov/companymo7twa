@@ -6,6 +6,8 @@
  * failing the whole request.
  */
 export async function fetchYoutubeTrendContext(apiKey: string, query: string): Promise<string | null> {
+  // Intentionally broad: catches network failures AND any parsing/shape
+  // surprises from the API response, per this function's "never throws" contract.
   try {
     const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&order=viewCount&maxResults=5&q=${encodeURIComponent(query)}&key=${apiKey}`;
     const searchRes = await fetch(searchUrl);
