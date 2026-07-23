@@ -11,7 +11,7 @@ export default function ProjectsPage() {
   useEffect(() => {
     fetch("/api/projects")
       .then((res) => res.json())
-      .then((data) => setProjects(data.projects.map((p: { id: string; name: string; isActive: boolean }) => p)));
+      .then((data) => setProjects(data.projects));
   }, [setProjects]);
 
   async function createProject() {
