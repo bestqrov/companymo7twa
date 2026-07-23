@@ -12,11 +12,16 @@ enum ScoreSource {
   AI_ESTIMATE
 }
 
+enum CtrSource {
+  HIGGSFIELD_PREDICTOR
+  AI_ESTIMATE
+}
+
 model User {
   id            String    @id @default(cuid())
   email         String    @unique
   name          String?
-  avatarUrl     String?
+  image         String?
   emailVerified DateTime?
 
   // AES-256-GCM encrypted (see src/lib/crypto.ts). Populated from the Google
@@ -73,9 +78,10 @@ model Project {
   name     String
   isActive Boolean @default(false)
 
-  user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  settings ProjectSettings?
-  ideas    Idea[]
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  settings   ProjectSettings?
+  ideas      Idea[]
+  thumbnails Thumbnail[]
 
   createdAt DateTime @default(now())
 }
@@ -103,6 +109,24 @@ model Idea {
 
   viralityScore Int
   scoreSource   ScoreSource
+
+  thumbnails Thumbnail[]
+
+  createdAt DateTime @default(now())
+}
+
+model Thumbnail {
+  id        String  @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  ideaId    String?
+  idea      Idea?   @relation(fields: [ideaId], references: [id], onDelete: SetNull)
+
+  prompt       String
+  imageUrl     String
+  ctrEstimate  Int
+  ctrSource    CtrSource
+  variantGroup String
 
   createdAt DateTime @default(now())
 }

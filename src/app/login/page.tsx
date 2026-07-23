@@ -6,7 +6,7 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-surface">
       <div className="text-center">
-        <h1 className="text-2xl font-bold text-accent">VifaTube AI Engine</h1>
+        <h1 className="text-2xl font-bold text-accent">ArwaTube AI Engine</h1>
         <p className="mt-2 text-zinc-400">Plan, write, and repurpose your video content with AI.</p>
       </div>
       <button

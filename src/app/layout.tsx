@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "VifaTube AI Engine",
+  title: "ArwaTube AI Engine",
   description: "AI Creator Suite for planning, writing, and repurposing video content.",
 };
 
