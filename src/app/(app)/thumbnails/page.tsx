@@ -12,20 +12,28 @@ export default function ThumbnailsPage() {
   const [mode, setMode] = useState<"single" | "abtest">("single");
   const [thumbnails, setThumbnails] = useState<Thumbnail[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadThumbnails = useCallback(() => {
+  const loadThumbnails = useCallback((options?: { silent?: boolean }) => {
     if (!currentProject) {
       setThumbnails([]);
       return;
     }
-    setIsLoading(true);
+    if (options?.silent) {
+      setIsRefreshing(true);
+    } else {
+      setIsLoading(true);
+    }
     return fetch(`/api/thumbnails?projectId=${currentProject.id}`)
       .then((res) => res.json())
       .then((data) => setThumbnails(data.thumbnails ?? []))
       .catch((err) => console.error("Failed to load thumbnails:", err))
-      .finally(() => setIsLoading(false));
+      .finally(() => {
+        setIsLoading(false);
+        setIsRefreshing(false);
+      });
   }, [currentProject]);
 
   useEffect(() => {
@@ -75,12 +83,12 @@ export default function ThumbnailsPage() {
         // the failure (thumbnails are saved one at a time, not all-or-nothing —
         // see src/server/thumbnails.ts). Re-fetch so the user sees them instead
         // of silently losing track of already-generated (and paid-for) images.
-        await loadThumbnails();
+        await loadThumbnails({ silent: true });
       }
     } catch (err) {
       console.error("Failed to generate thumbnails:", err);
       setError("Failed to generate thumbnails. Please try again. Reloading in case some were saved.");
-      await loadThumbnails();
+      await loadThumbnails({ silent: true });
     } finally {
       setIsGenerating(false);
     }
@@ -134,6 +142,7 @@ export default function ThumbnailsPage() {
         </button>
       </div>
       {error && <p className="mt-2 text-sm text-red-400">{error}</p>}
+      {isRefreshing && <p className="mt-1 text-xs text-zinc-500">Checking for saved thumbnails...</p>}
 
       {isLoading ? (
         <p className="mt-6 text-sm text-zinc-500">Loading thumbnails...</p>
