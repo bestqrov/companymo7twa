@@ -59,6 +59,7 @@ export function IdeaCard({ idea }: { idea: Idea }) {
           <button
             key={action.href}
             title={action.label}
+            aria-label={action.label}
             onClick={() => useIdeaIn(action.href)}
             className="rounded-md border border-surface-border px-2 py-1 text-sm text-zinc-300 hover:text-accent"
           >
