@@ -1,4 +1,6 @@
 import type { ScriptTone } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
+import { getLlmClient } from "@/lib/llm";
 
 export interface ScriptGenerationInput {
   topic: string;
@@ -102,4 +104,56 @@ Current text for this section (for context — write a fresh alternative, do not
 "${input.currentSectionText}"
 
 Respond with ONLY the new text for this section. Do not include any JSON, labels, or text outside the section content itself.`;
+}
+
+export async function createScriptForIdeaOrTopic(
+  projectId: string,
+  ideaId: string | null,
+  input: { topic: string; tone: ScriptTone }
+) {
+  if (ideaId) {
+    const existing = await prisma.script.findUnique({ where: { ideaId } });
+    if (existing) {
+      return { script: existing, created: false };
+    }
+  }
+
+  const llm = getLlmClient();
+  const raw = await llm.generateText(buildScriptPrompt(input));
+  const generated = parseScriptResponse(raw);
+
+  const script = await prisma.script.create({
+    data: {
+      projectId,
+      ideaId,
+      topic: input.topic,
+      tone: input.tone,
+      hook: generated.hook,
+      intro: generated.intro,
+      mainContent: generated.mainContent,
+      cta: generated.cta,
+      ending: generated.ending,
+    },
+  });
+
+  return { script, created: true };
+}
+
+export async function regenerateScriptSection(scriptId: string, section: ScriptSection) {
+  const script = await prisma.script.findUniqueOrThrow({ where: { id: scriptId } });
+
+  const llm = getLlmClient();
+  const raw = await llm.generateText(
+    buildSectionRegeneratePrompt({
+      topic: script.topic,
+      tone: script.tone,
+      section,
+      currentSectionText: script[section],
+    })
+  );
+
+  return prisma.script.update({
+    where: { id: scriptId },
+    data: { [section]: raw.trim() },
+  });
 }
