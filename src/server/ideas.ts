@@ -1,4 +1,7 @@
 import type { ScoreSource } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
+import { getLlmClient } from "@/lib/llm";
+import { fetchYoutubeTrendContext } from "@/lib/youtube";
 
 export interface IdeaGenerationInput {
   channelTopic: string;
@@ -72,4 +75,38 @@ export function parseIdeasResponse(raw: string): GeneratedIdea[] {
 
 export function determineScoreSource(usedRealYoutubeData: boolean): ScoreSource {
   return usedRealYoutubeData ? "REAL_YOUTUBE_DATA" : "AI_ESTIMATE";
+}
+
+export async function createIdeasForProject(
+  projectId: string,
+  youtubeApiKey: string | null,
+  input: { channelTopic: string; primaryNiche: string; targetAudience: string }
+) {
+  const youtubeContext = youtubeApiKey
+    ? await fetchYoutubeTrendContext(youtubeApiKey, `${input.channelTopic} ${input.primaryNiche}`)
+    : null;
+
+  const scoreSource = determineScoreSource(youtubeContext !== null);
+
+  const llm = getLlmClient();
+  const prompt = buildIdeaPrompt({ ...input, youtubeContext });
+  const raw = await llm.generateText(prompt);
+  const generatedIdeas = parseIdeasResponse(raw);
+
+  const ideas = await prisma.$transaction(
+    generatedIdeas.map((idea) =>
+      prisma.idea.create({
+        data: {
+          projectId,
+          title: idea.title,
+          description: idea.description,
+          hook: idea.hook,
+          viralityScore: idea.viralityScore,
+          scoreSource,
+        },
+      })
+    )
+  );
+
+  return ideas;
 }
