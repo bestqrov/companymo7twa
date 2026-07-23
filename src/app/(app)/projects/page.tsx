@@ -1,18 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAppStore } from "@/store/useAppStore";
 
 export default function ProjectsPage() {
   const { projects, setProjects, switchProject } = useAppStore();
   const [newName, setNewName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
-
-  useEffect(() => {
-    fetch("/api/projects")
-      .then((res) => res.json())
-      .then((data) => setProjects(data.projects));
-  }, [setProjects]);
 
   async function createProject() {
     if (!newName.trim()) return;
