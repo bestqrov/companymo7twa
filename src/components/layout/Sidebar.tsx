@@ -18,7 +18,7 @@ export function Sidebar() {
   return (
     <aside className="flex h-screen w-64 flex-col border-r border-surface-border bg-surface p-4">
       <div className="mb-4">
-        <h1 className="text-lg font-bold text-accent">VifaTube AI</h1>
+        <h1 className="text-lg font-bold text-accent">ArwaTube AI</h1>
       </div>
       <div className="mb-4">
         <ProjectSwitcher />
