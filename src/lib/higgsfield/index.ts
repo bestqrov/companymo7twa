@@ -1,5 +1,12 @@
 const HIGGSFIELD_API_BASE = process.env.HIGGSFIELD_API_BASE_URL || "https://platform.higgsfield.ai";
-const HIGGSFIELD_MODEL_ID = "higgsfield-ai/soul/standard";
+// "higgsfield-ai/soul/standard" and "reve/text-to-image" are the only two
+// model_ids documented for the public REST API
+// (https://docs.higgsfield.ai/docs/guides/images.md). The consumer-app/MCP
+// catalog exposes more models (FLUX, GPT Image, Seedream, Kling, Nano
+// Banana, etc.) under different internal slugs (e.g. "flux_2"), but those
+// slugs return 404 "model_not_found" against this REST endpoint — they
+// appear to belong to a separate product surface, not the public API.
+const HIGGSFIELD_MODEL_ID = process.env.HIGGSFIELD_MODEL_ID || "higgsfield-ai/soul/standard";
 const POLL_INTERVAL_MS = 2000;
 const POLL_TIMEOUT_MS = 60000;
 
