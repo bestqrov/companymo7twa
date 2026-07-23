@@ -7,22 +7,36 @@ import { IdeaCard, type Idea } from "@/components/idea-finder/IdeaCard";
 export default function IdeaFinderPage() {
   const { currentProject } = useAppStore();
   const [ideas, setIdeas] = useState<Idea[]>([]);
+  const [isLoadingIdeas, setIsLoadingIdeas] = useState(false);
   const [channelTopic, setChannelTopic] = useState("");
   const [primaryNiche, setPrimaryNiche] = useState("");
   const [targetAudience, setTargetAudience] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [generateError, setGenerateError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!currentProject) return;
+    setChannelTopic("");
+    setPrimaryNiche("");
+    setTargetAudience("");
+    setGenerateError(null);
+
+    if (!currentProject) {
+      setIdeas([]);
+      return;
+    }
+
+    setIsLoadingIdeas(true);
     fetch(`/api/ideas?projectId=${currentProject.id}`)
       .then((res) => res.json())
       .then((data) => setIdeas(data.ideas ?? []))
-      .catch((error) => console.error("Failed to load ideas:", error));
+      .catch((error) => console.error("Failed to load ideas:", error))
+      .finally(() => setIsLoadingIdeas(false));
   }, [currentProject]);
 
   async function generateIdeas() {
     if (!currentProject || !channelTopic.trim() || !primaryNiche.trim() || !targetAudience.trim()) return;
     setIsGenerating(true);
+    setGenerateError(null);
     try {
       const res = await fetch("/api/ideas", {
         method: "POST",
@@ -38,8 +52,12 @@ export default function IdeaFinderPage() {
         const data = await res.json();
         setIdeas([...data.ideas, ...ideas]);
       } else {
-        console.error("Failed to generate ideas:", res.status);
+        const data = await res.json().catch(() => null);
+        setGenerateError(data?.error ?? "Failed to generate ideas. Please try again.");
       }
+    } catch (error) {
+      console.error("Failed to generate ideas:", error);
+      setGenerateError("Failed to generate ideas. Please try again.");
     } finally {
       setIsGenerating(false);
     }
@@ -77,12 +95,17 @@ export default function IdeaFinderPage() {
       >
         {isGenerating ? "Generating..." : "Generate Ideas"}
       </button>
+      {generateError && <p className="mt-2 text-sm text-red-400">{generateError}</p>}
 
-      <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {ideas.map((idea) => (
-          <IdeaCard key={idea.id} idea={idea} />
-        ))}
-      </div>
+      {isLoadingIdeas ? (
+        <p className="mt-6 text-sm text-zinc-500">Loading ideas...</p>
+      ) : (
+        <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {ideas.map((idea) => (
+            <IdeaCard key={idea.id} idea={idea} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
