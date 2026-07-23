@@ -71,30 +71,28 @@ export async function createThumbnailsForProject(
   const variantCount = input.mode === "abtest" ? 4 : 1;
   const variantGroup = crypto.randomUUID();
 
-  // Generated sequentially (not in parallel) to keep behavior predictable
-  // and avoid bursting Higgsfield's API with 4 simultaneous requests.
-  const variants: { url: string; ctrEstimate: number; ctrSource: CtrSource }[] = [];
+  // Generated and persisted one at a time (not in parallel, not batched at
+  // the end) so that if a later variant fails — e.g. a Higgsfield rate limit
+  // partway through a 4-variant A/B batch — the earlier, already-generated
+  // (and already-paid-for) variants are still saved rather than lost.
+  const thumbnails = [];
   for (let i = 0; i < variantCount; i++) {
     const { url } = await generateImage(input.prompt);
     const { ctrEstimate, ctrSource } = await estimateCtrWithFallback(url, input.prompt);
-    variants.push({ url, ctrEstimate, ctrSource });
-  }
 
-  const thumbnails = await prisma.$transaction(
-    variants.map((variant) =>
-      prisma.thumbnail.create({
-        data: {
-          projectId,
-          ideaId,
-          prompt: input.prompt,
-          imageUrl: variant.url,
-          ctrEstimate: variant.ctrEstimate,
-          ctrSource: variant.ctrSource,
-          variantGroup,
-        },
-      })
-    )
-  );
+    const thumbnail = await prisma.thumbnail.create({
+      data: {
+        projectId,
+        ideaId,
+        prompt: input.prompt,
+        imageUrl: url,
+        ctrEstimate,
+        ctrSource,
+        variantGroup,
+      },
+    });
+    thumbnails.push(thumbnail);
+  }
 
   return thumbnails;
 }
