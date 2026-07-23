@@ -22,20 +22,29 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
+    // NOTE: NextAuth's PrismaAdapter also writes raw (unencrypted) tokens to the
+    // Account table as part of its own flow. The encrypted copies below on User
+    // do not eliminate that exposure — see Phase 1 code review notes. A custom
+    // adapter override to scrub Account token fields is a tracked follow-up.
     async signIn({ user, account }) {
-      if (account?.access_token) {
-        await prisma.user.update({
-          where: { id: user.id },
-          data: {
-            googleAccessToken: encrypt(account.access_token),
-            googleRefreshToken: account.refresh_token ? encrypt(account.refresh_token) : undefined,
-          },
-        });
+      try {
+        if (account?.access_token) {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: {
+              googleAccessToken: encrypt(account.access_token),
+              googleRefreshToken: account.refresh_token ? encrypt(account.refresh_token) : undefined,
+            },
+          });
+        }
+
+        await ensureDefaultProject(user.id);
+
+        return true;
+      } catch (error) {
+        console.error("[auth] signIn callback failed for user", user.id, error);
+        return false;
       }
-
-      await ensureDefaultProject(user.id);
-
-      return true;
     },
     async session({ session, user }) {
       if (session.user) {
