@@ -18,6 +18,8 @@ export const useAppStore = create<AppState>((set, get) => ({
   currentProject: null,
 
   setProjects: (projects) => {
+    // Assumes at most one project has isActive: true (enforced server-side).
+    // Falls back to the first project if none is flagged active, or null if the list is empty.
     set({
       projects,
       currentProject: projects.find((p) => p.isActive) ?? projects[0] ?? null,

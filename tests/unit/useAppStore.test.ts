@@ -26,4 +26,23 @@ describe("useAppStore", () => {
     expect(useAppStore.getState().projects.find((p) => p.id === "p2")?.isActive).toBe(true);
     expect(useAppStore.getState().projects.find((p) => p.id === "p1")?.isActive).toBe(false);
   });
+
+  it("falls back to the first project when none is flagged active", () => {
+    const noActiveProjects = [
+      { id: "p1", name: "My First Channel", isActive: false },
+      { id: "p2", name: "Side Channel", isActive: false },
+    ];
+
+    useAppStore.getState().setProjects(noActiveProjects);
+
+    expect(useAppStore.getState().currentProject?.id).toBe("p1");
+  });
+
+  it("switching to an unknown project id clears currentProject and all isActive flags", () => {
+    useAppStore.getState().setProjects(sampleProjects);
+    useAppStore.getState().switchProject("does-not-exist");
+
+    expect(useAppStore.getState().currentProject).toBeNull();
+    expect(useAppStore.getState().projects.every((p) => !p.isActive)).toBe(true);
+  });
 });
