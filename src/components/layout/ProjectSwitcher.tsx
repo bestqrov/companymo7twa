@@ -19,6 +19,7 @@ export function ProjectSwitcher() {
 
   return (
     <select
+      aria-label="Active project"
       value={currentProject?.id ?? ""}
       onChange={(e) => {
         switchProject(e.target.value);

@@ -6,6 +6,7 @@ function titleFromPath(pathname: string): string {
   const segment = pathname.split("/").filter(Boolean)[0] ?? "dashboard";
   return segment
     .split("-")
+    .filter(Boolean)
     .map((word) => word[0].toUpperCase() + word.slice(1))
     .join(" ");
 }
