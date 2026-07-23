@@ -21,7 +21,7 @@ model User {
   id            String    @id @default(cuid())
   email         String    @unique
   name          String?
-  avatarUrl     String?
+  image         String?
   emailVerified DateTime?
 
   // AES-256-GCM encrypted (see src/lib/crypto.ts). Populated from the Google

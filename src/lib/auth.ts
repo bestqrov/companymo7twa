@@ -22,10 +22,25 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
+    async session({ session, user }) {
+      if (session.user) {
+        session.user.id = user.id;
+      }
+      return session;
+    },
+  },
+  events: {
     // NOTE: NextAuth's PrismaAdapter also writes raw (unencrypted) tokens to the
     // Account table as part of its own flow. The encrypted copies below on User
     // do not eliminate that exposure — see Phase 1 code review notes. A custom
     // adapter override to scrub Account token fields is a tracked follow-up.
+    //
+    // This logic lives in the `signIn` EVENT (not the `signIn` CALLBACK) because
+    // for a brand-new user, NextAuth's OAuth callback handler invokes the
+    // `signIn` callback with the raw OAuth profile (native provider id, no DB
+    // row exists yet) — the database User row is only created afterward. The
+    // `signIn` event, by contrast, always fires after the adapter has finished
+    // creating the user, so `user.id` here is reliably a real database id.
     async signIn({ user, account }) {
       try {
         if (account?.access_token) {
@@ -39,18 +54,9 @@ export const authOptions: NextAuthOptions = {
         }
 
         await ensureDefaultProject(user.id);
-
-        return true;
       } catch (error) {
-        console.error("[auth] signIn callback failed for user", user.id, error);
-        return false;
+        console.error("[auth] signIn event failed for user", user.id, error);
       }
-    },
-    async session({ session, user }) {
-      if (session.user) {
-        session.user.id = user.id;
-      }
-      return session;
     },
   },
   pages: {
