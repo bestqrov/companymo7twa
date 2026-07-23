@@ -17,6 +17,13 @@ enum CtrSource {
   AI_ESTIMATE
 }
 
+enum ScriptTone {
+  ENGAGING
+  EDUCATIONAL
+  STORYTELLING
+  FAST_PACED
+}
+
 model User {
   id            String    @id @default(cuid())
   email         String    @unique
@@ -82,6 +89,7 @@ model Project {
   settings   ProjectSettings?
   ideas      Idea[]
   thumbnails Thumbnail[]
+  scripts    Script[]
 
   createdAt DateTime @default(now())
 }
@@ -111,6 +119,7 @@ model Idea {
   scoreSource   ScoreSource
 
   thumbnails Thumbnail[]
+  script     Script?
 
   createdAt DateTime @default(now())
 }
@@ -129,4 +138,24 @@ model Thumbnail {
   variantGroup String
 
   createdAt DateTime @default(now())
+}
+
+model Script {
+  id        String  @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  ideaId    String? @unique
+  idea      Idea?   @relation(fields: [ideaId], references: [id], onDelete: SetNull)
+
+  topic String
+  tone  ScriptTone
+
+  hook        String
+  intro       String
+  mainContent String
+  cta         String
+  ending      String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
