@@ -12,18 +12,51 @@ afterEach(() => {
   delete process.env.HIGGSFIELD_API_KEY_SECRET;
 });
 
+const SUBMIT_RESPONSE = {
+  status: "queued",
+  request_id: "req-1",
+  status_url: "https://platform.higgsfield.ai/requests/req-1/status",
+};
+
 describe("generateImage", () => {
-  it("returns the generated image URL on success", async () => {
+  it("submits a request and polls until completed, returning the image URL", async () => {
     const fetchMock = vi
       .fn()
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ url: "https://higgsfield.ai/img/abc.png" }) });
+      // submit
+      .mockResolvedValueOnce({ ok: true, json: async () => SUBMIT_RESPONSE })
+      // first poll: still in progress
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ status: "in_progress", request_id: "req-1" }) })
+      // second poll: completed
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          status: "completed",
+          request_id: "req-1",
+          images: [{ url: "https://higgsfield.ai/img/abc.png" }],
+        }),
+      });
     vi.stubGlobal("fetch", fetchMock);
+    vi.spyOn(global, "setTimeout").mockImplementation(((fn: () => void) => {
+      fn();
+      return 0 as unknown as NodeJS.Timeout;
+    }) as typeof setTimeout);
 
     const result = await generateImage("a red espresso cup");
     expect(result.url).toBe("https://higgsfield.ai/img/abc.png");
+    expect(fetchMock).toHaveBeenCalledTimes(3);
   });
 
-  it("throws when the request fails", async () => {
+  it("throws when the request fails to complete (status: failed)", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => SUBMIT_RESPONSE })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ status: "failed", request_id: "req-1" }) });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(generateImage("a red espresso cup")).rejects.toThrow();
+  });
+
+  it("throws when the submit request fails", async () => {
     const fetchMock = vi.fn().mockResolvedValueOnce({ ok: false, status: 500, text: async () => "Server error" });
     vi.stubGlobal("fetch", fetchMock);
 
@@ -39,34 +72,7 @@ describe("generateImage", () => {
 });
 
 describe("predictCtr", () => {
-  it("returns a number on success", async () => {
-    const fetchMock = vi.fn().mockResolvedValueOnce({ ok: true, json: async () => ({ ctr_percent: 8.4 }) });
-    vi.stubGlobal("fetch", fetchMock);
-
-    const result = await predictCtr("https://higgsfield.ai/img/abc.png", "espresso cup");
-    expect(result).toBe(8.4);
-  });
-
-  it("returns null when the request fails", async () => {
-    const fetchMock = vi.fn().mockResolvedValueOnce({ ok: false, status: 500, text: async () => "Server error" });
-    vi.stubGlobal("fetch", fetchMock);
-
-    const result = await predictCtr("https://higgsfield.ai/img/abc.png", "espresso cup");
-    expect(result).toBeNull();
-  });
-
-  it("returns null when fetch throws", async () => {
-    const fetchMock = vi.fn().mockRejectedValueOnce(new Error("network error"));
-    vi.stubGlobal("fetch", fetchMock);
-
-    const result = await predictCtr("https://higgsfield.ai/img/abc.png", "espresso cup");
-    expect(result).toBeNull();
-  });
-
-  it("returns null when credentials are not configured (never throws)", async () => {
-    delete process.env.HIGGSFIELD_API_KEY_ID;
-    delete process.env.HIGGSFIELD_API_KEY_SECRET;
-
+  it("always returns null (no public CTR-prediction endpoint documented)", async () => {
     const result = await predictCtr("https://higgsfield.ai/img/abc.png", "espresso cup");
     expect(result).toBeNull();
   });
