@@ -29,7 +29,7 @@ class ClaudeLlmClient implements LlmClient {
 
     const textBlock = response.content.find((block) => block.type === "text");
     if (!textBlock || textBlock.type !== "text") {
-      throw new Error("Claude response contained no text content");
+      throw new Error(`Claude response contained no text content (stop_reason: ${response.stop_reason})`);
     }
 
     return textBlock.text;
