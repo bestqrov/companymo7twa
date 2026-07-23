@@ -38,7 +38,15 @@ export function parseIdeasResponse(raw: string): GeneratedIdea[] {
     throw new Error("Could not find a JSON array in the LLM response");
   }
 
-  const parsed = JSON.parse(match[0]);
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(match[0]);
+  } catch (error) {
+    throw new Error(
+      `Failed to parse JSON array from LLM response: ${error instanceof Error ? error.message : String(error)}`
+    );
+  }
+
   if (!Array.isArray(parsed)) {
     throw new Error("Parsed LLM response is not an array");
   }
