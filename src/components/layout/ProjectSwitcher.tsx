@@ -3,11 +3,18 @@
 import { useAppStore } from "@/store/useAppStore";
 
 async function persistActiveProject(projectId: string) {
-  await fetch("/api/projects/active", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ projectId }),
-  });
+  try {
+    const res = await fetch("/api/projects/active", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ projectId }),
+    });
+    if (!res.ok) {
+      console.error("Failed to persist active project:", res.status, await res.text());
+    }
+  } catch (error) {
+    console.error("Failed to persist active project:", error);
+  }
 }
 
 export function ProjectSwitcher() {
