@@ -48,7 +48,7 @@ describe("predictCtr", () => {
   });
 
   it("returns null when the request fails", async () => {
-    const fetchMock = vi.fn().mockResolvedValueOnce({ ok: false });
+    const fetchMock = vi.fn().mockResolvedValueOnce({ ok: false, status: 500, text: async () => "Server error" });
     vi.stubGlobal("fetch", fetchMock);
 
     const result = await predictCtr("https://higgsfield.ai/img/abc.png", "espresso cup");

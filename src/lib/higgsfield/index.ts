@@ -58,6 +58,7 @@ async function callPredictCtrEndpoint(imageUrl: string, context: string): Promis
   });
 
   if (!res.ok) {
+    console.error(`Higgsfield predictCtr failed: ${res.status} ${await res.text()}`);
     return null;
   }
 
@@ -75,7 +76,8 @@ async function callPredictCtrEndpoint(imageUrl: string, context: string): Promis
 export async function predictCtr(imageUrl: string, context: string): Promise<number | null> {
   try {
     return await callPredictCtrEndpoint(imageUrl, context);
-  } catch {
+  } catch (error) {
+    console.error("Higgsfield predictCtr failed:", error);
     return null;
   }
 }
