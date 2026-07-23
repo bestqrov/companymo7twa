@@ -33,6 +33,6 @@ export async function getUserProjects(userId: string) {
 export async function setActiveProject(userId: string, projectId: string): Promise<void> {
   await prisma.$transaction([
     prisma.project.updateMany({ where: { userId }, data: { isActive: false } }),
-    prisma.project.update({ where: { id: projectId }, data: { isActive: true } }),
+    prisma.project.update({ where: { id: projectId, userId }, data: { isActive: true } }),
   ]);
 }
