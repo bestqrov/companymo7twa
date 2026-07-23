@@ -13,14 +13,19 @@ export default function SettingsPage() {
 
   async function save() {
     if (!currentProject) return;
-    await fetch("/api/settings", {
+    const res = await fetch("/api/settings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ projectId: currentProject.id, youtubeApiKey, targetCountry, targetLanguage }),
     });
-    setYoutubeApiKey("");
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+
+    if (res.ok) {
+      setYoutubeApiKey("");
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } else {
+      console.error("Failed to save settings:", res.status);
+    }
   }
 
   return (
