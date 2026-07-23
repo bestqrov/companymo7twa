@@ -6,9 +6,11 @@ vi.mock("@/lib/higgsfield", () => ({
   predictCtr: async () => null,
 }));
 
+const generateText = vi.fn(async () => JSON.stringify({ ctrEstimate: 6 }));
+
 vi.mock("@/lib/llm", () => ({
   getLlmClient: () => ({
-    generateText: async () => JSON.stringify({ ctrEstimate: 6 }),
+    generateText,
   }),
 }));
 
@@ -16,6 +18,8 @@ import { createThumbnailsForProject } from "@/server/thumbnails";
 
 describe("createThumbnailsForProject", () => {
   beforeEach(async () => {
+    generateText.mockClear();
+    generateText.mockImplementation(async () => JSON.stringify({ ctrEstimate: 6 }));
     await prisma.thumbnail.deleteMany();
     await prisma.idea.deleteMany();
     await prisma.projectSettings.deleteMany();
@@ -60,5 +64,29 @@ describe("createThumbnailsForProject", () => {
     expect(thumbnails).toHaveLength(4);
     const variantGroups = new Set(thumbnails.map((t) => t.variantGroup));
     expect(variantGroups.size).toBe(1);
+  });
+
+  it("persists the thumbnail with a neutral fallback CTR when CTR estimation throws", async () => {
+    generateText.mockImplementation(async () => {
+      throw new Error("Claude API failure");
+    });
+
+    const user = await prisma.user.create({ data: { email: "creator3@example.com", name: "Creator Three" } });
+    const project = await prisma.project.create({
+      data: { userId: user.id, name: "Test Channel 3", isActive: true, settings: { create: {} } },
+    });
+
+    const thumbnails = await createThumbnailsForProject(project.id, null, {
+      prompt: "a green espresso cup",
+      mode: "single",
+    });
+
+    // The image generation succeeded (and was paid for) even though CTR
+    // estimation threw, so the thumbnail must still be persisted rather
+    // than lost, with a safe fallback CTR value.
+    expect(thumbnails).toHaveLength(1);
+    expect(thumbnails[0].ctrSource).toBe("AI_ESTIMATE");
+    expect(thumbnails[0].ctrEstimate).toBe(5);
+    expect(thumbnails[0].imageUrl).toBe("https://higgsfield.ai/img/generated.png");
   });
 });

@@ -78,7 +78,22 @@ export async function createThumbnailsForProject(
   const thumbnails = [];
   for (let i = 0; i < variantCount; i++) {
     const { url } = await generateImage(input.prompt);
-    const { ctrEstimate, ctrSource } = await estimateCtrWithFallback(url, input.prompt);
+
+    // The image is already generated (and paid for) at this point. If CTR
+    // estimation fails (Claude API error, malformed response), don't let
+    // that lose the image — fall back to a neutral estimate and persist it
+    // anyway, rather than throwing and discarding an already-paid-for asset.
+    let ctrEstimate: number;
+    let ctrSource: CtrSource;
+    try {
+      const result = await estimateCtrWithFallback(url, input.prompt);
+      ctrEstimate = result.ctrEstimate;
+      ctrSource = result.ctrSource;
+    } catch (error) {
+      console.error("CTR estimation failed, persisting thumbnail with a neutral fallback estimate:", error);
+      ctrEstimate = 5;
+      ctrSource = "AI_ESTIMATE";
+    }
 
     const thumbnail = await prisma.thumbnail.create({
       data: {

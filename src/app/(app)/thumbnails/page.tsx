@@ -15,6 +15,8 @@ export default function ThumbnailsPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [savingToDriveId, setSavingToDriveId] = useState<string | null>(null);
+  const [saveToDriveMessage, setSaveToDriveMessage] = useState<string | null>(null);
 
   const loadThumbnails = useCallback((options?: { silent?: boolean }) => {
     if (!currentProject) {
@@ -95,13 +97,22 @@ export default function ThumbnailsPage() {
   }
 
   async function saveToDrive(id: string) {
+    setSavingToDriveId(id);
+    setSaveToDriveMessage(null);
     try {
       const res = await fetch(`/api/thumbnails/${id}/save-to-drive`, { method: "POST" });
-      if (!res.ok) {
+      if (res.ok) {
+        setSaveToDriveMessage("Saved to Drive.");
+      } else {
         console.error("Failed to save to Drive:", res.status);
+        setSaveToDriveMessage("Failed to save to Drive. Please try again.");
       }
     } catch (err) {
       console.error("Failed to save to Drive:", err);
+      setSaveToDriveMessage("Failed to save to Drive. Please try again.");
+    } finally {
+      setSavingToDriveId(null);
+      setTimeout(() => setSaveToDriveMessage(null), 3000);
     }
   }
 
@@ -143,6 +154,8 @@ export default function ThumbnailsPage() {
       </div>
       {error && <p className="mt-2 text-sm text-red-400">{error}</p>}
       {isRefreshing && <p className="mt-1 text-xs text-zinc-500">Checking for saved thumbnails...</p>}
+
+      {saveToDriveMessage && <p className="mt-2 text-sm text-zinc-400">{saveToDriveMessage}</p>}
 
       {isLoading ? (
         <p className="mt-6 text-sm text-zinc-500">Loading thumbnails...</p>
