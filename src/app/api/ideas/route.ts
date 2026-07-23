@@ -32,10 +32,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Project not found" }, { status: 404 });
   }
 
-  const youtubeApiKey = project.settings?.youtubeApiKey ? decrypt(project.settings.youtubeApiKey) : null;
-
   let ideas;
   try {
+    const youtubeApiKey = project.settings?.youtubeApiKey ? decrypt(project.settings.youtubeApiKey) : null;
+
     ideas = await createIdeasForProject(projectId, youtubeApiKey, {
       channelTopic,
       primaryNiche,
