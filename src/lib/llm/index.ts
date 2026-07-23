@@ -9,7 +9,7 @@ export interface LlmClient {
   generateText(prompt: string): Promise<string>;
 }
 
-const DEFAULT_MODEL = "claude-sonnet-4-5-20250929";
+const DEFAULT_MODEL = "claude-sonnet-5";
 
 class ClaudeLlmClient implements LlmClient {
   private client: Anthropic;
