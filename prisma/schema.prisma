@@ -7,6 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum ScoreSource {
+  REAL_YOUTUBE_DATA
+  AI_ESTIMATE
+}
+
 model User {
   id            String    @id @default(cuid())
   email         String    @unique
@@ -70,6 +75,7 @@ model Project {
 
   user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   settings ProjectSettings?
+  ideas    Idea[]
 
   createdAt DateTime @default(now())
 }
@@ -84,4 +90,19 @@ model ProjectSettings {
 
   targetCountry  String?
   targetLanguage String?
+}
+
+model Idea {
+  id        String  @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String
+  hook        String
+
+  viralityScore Int
+  scoreSource   ScoreSource
+
+  createdAt DateTime @default(now())
 }
