@@ -34,11 +34,17 @@ export async function POST(request: Request) {
 
   const youtubeApiKey = project.settings?.youtubeApiKey ? decrypt(project.settings.youtubeApiKey) : null;
 
-  const ideas = await createIdeasForProject(projectId, youtubeApiKey, {
-    channelTopic,
-    primaryNiche,
-    targetAudience,
-  });
+  let ideas;
+  try {
+    ideas = await createIdeasForProject(projectId, youtubeApiKey, {
+      channelTopic,
+      primaryNiche,
+      targetAudience,
+    });
+  } catch (error) {
+    console.error("Failed to generate ideas:", error);
+    return NextResponse.json({ error: "Failed to generate ideas. Please try again." }, { status: 502 });
+  }
 
   return NextResponse.json({ ideas }, { status: 201 });
 }
