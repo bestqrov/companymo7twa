@@ -7,7 +7,6 @@ import { IdeaCard, type Idea } from "@/components/idea-finder/IdeaCard";
 export default function IdeaFinderPage() {
   const { currentProject } = useAppStore();
   const [ideas, setIdeas] = useState<Idea[]>([]);
-  const [isLoadingIdeas, setIsLoadingIdeas] = useState(false);
   const [channelTopic, setChannelTopic] = useState("");
   const [primaryNiche, setPrimaryNiche] = useState("");
   const [targetAudience, setTargetAudience] = useState("");
@@ -21,18 +20,7 @@ export default function IdeaFinderPage() {
     setTargetAudience("");
     setInspirationChannel("");
     setGenerateError(null);
-
-    if (!currentProject) {
-      setIdeas([]);
-      return;
-    }
-
-    setIsLoadingIdeas(true);
-    fetch(`/api/ideas?projectId=${currentProject.id}`)
-      .then((res) => res.json())
-      .then((data) => setIdeas(data.ideas ?? []))
-      .catch((error) => console.error("Failed to load ideas:", error))
-      .finally(() => setIsLoadingIdeas(false));
+    setIdeas([]);
   }, [currentProject]);
 
   async function generateIdeas() {
@@ -110,15 +98,11 @@ export default function IdeaFinderPage() {
       </button>
       {generateError && <p className="mt-2 text-sm text-red-400">{generateError}</p>}
 
-      {isLoadingIdeas ? (
-        <p className="mt-6 text-sm text-zinc-500">Loading ideas...</p>
-      ) : (
-        <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {ideas.map((idea) => (
-            <IdeaCard key={idea.id} idea={idea} />
-          ))}
-        </div>
-      )}
+      <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {ideas.map((idea) => (
+          <IdeaCard key={idea.id} idea={idea} />
+        ))}
+      </div>
     </div>
   );
 }
