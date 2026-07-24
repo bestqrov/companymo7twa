@@ -18,54 +18,27 @@ export function determineCtrSource(predictedCtr: number | null): CtrSource {
  * into after seeing the alternative (a text-free prompt).
  */
 export function buildThumbnailImagePrompt(userPrompt: string): string {
-  return `Create an ultra high CTR YouTube thumbnail in the style of the biggest viral YouTube creators.
+  return `Create a professional YouTube thumbnail, in the style of top Fiverr/YouTube thumbnail designers (clean, commercial, template-like quality).
 
 Scene/topic: ${userPrompt}
 
-Style:
-- Modern YouTube thumbnail
-- Extremely eye-catching
-- High contrast
-- Bright saturated colors
-- Red, yellow, green and white color palette
-- Cinematic lighting
-- Dramatic shadows
-- Glossy professional finish
-- Hyper realistic
-
 Composition:
-- One large subject occupying 60-70% of the frame
-- Subject looking directly at camera
-- Extreme facial expression (shock, excitement, surprise)
-- Large bold headline area on the right
-- Dynamic diagonal composition
-- Clean background with simple gradients and glowing elements
-- Floating money, arrows, icons or visual effects depending on topic
-- Motion blur and depth of field
-- Thick outline around subject
-- Strong separation from background
+- One person occupying 40-55% of the frame, cut out from their background with a clean, thick white (or bright colored) outline border, like a sticker/cutout composited on top of the background — not blended photorealistically into a scene
+- Subject looking directly at camera with a clear, exaggerated expression (shock, excitement, curiosity)
+- Simple background: a smooth two-color gradient or solid color split down the middle, optionally with a very subtle abstract pattern — NOT a busy or photorealistic scene
+- Plenty of empty, uncluttered space reserved for the headline text
+- No floating debris, no explosion particles, no lens flare, no scattered icons or logos anywhere in the image
 
 Typography:
-- Huge bold uppercase text summarizing the topic in 2-4 words
-- White, yellow and green colors
-- Thick black outline
-- Heavy drop shadow
+- ONE short, extremely bold, ALL-CAPS headline of exactly 2-3 simple common words summarizing the topic
+- Large sans-serif font, thick and heavy weight
+- White or bright yellow fill with a thick black outline and a subtle drop shadow
+- Text must be large, short, and simple enough to render clearly and legibly — prioritize legibility over decoration
 
-Effects:
-- Glow
-- Lens flare
-- Light streaks
-- Explosion particles
-- Floating cash
-- Red YouTube play icons
-- Premium advertising quality
-
-Quality:
-8K
-Ultra detailed
-Photorealistic
-Designed for maximum click-through rate
-Looks like MrBeast, Ali Abdaal and Iman Gadzhi thumbnail quality`;
+Style:
+- Bright, saturated, high-contrast colors
+- Clean commercial/template quality, sharp focus, professional lighting
+- Flat modern graphic-design look rather than cinematic realism`;
 }
 
 export function buildCtrFallbackPrompt(thumbnailPrompt: string): string {
