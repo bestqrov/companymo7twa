@@ -11,6 +11,7 @@ export default function IdeaFinderPage() {
   const [channelTopic, setChannelTopic] = useState("");
   const [primaryNiche, setPrimaryNiche] = useState("");
   const [targetAudience, setTargetAudience] = useState("");
+  const [inspirationChannel, setInspirationChannel] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
 
@@ -18,6 +19,7 @@ export default function IdeaFinderPage() {
     setChannelTopic("");
     setPrimaryNiche("");
     setTargetAudience("");
+    setInspirationChannel("");
     setGenerateError(null);
 
     if (!currentProject) {
@@ -46,6 +48,7 @@ export default function IdeaFinderPage() {
           channelTopic,
           primaryNiche,
           targetAudience,
+          inspirationChannel: inspirationChannel.trim() || undefined,
         }),
       });
       if (res.ok) {
@@ -68,7 +71,7 @@ export default function IdeaFinderPage() {
       <h1 className="text-2xl font-bold text-zinc-100">Idea Finder</h1>
       <p className="mt-1 text-sm text-zinc-400">Turn a topic into scored video concepts.</p>
 
-      <div className="mt-6 grid grid-cols-3 gap-3">
+      <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <input
           value={channelTopic}
           onChange={(e) => setChannelTopic(e.target.value)}
@@ -85,6 +88,12 @@ export default function IdeaFinderPage() {
           value={targetAudience}
           onChange={(e) => setTargetAudience(e.target.value)}
           placeholder="Target Audience"
+          className="rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-zinc-100"
+        />
+        <input
+          value={inspirationChannel}
+          onChange={(e) => setInspirationChannel(e.target.value)}
+          placeholder="Inspiration Channel (optional)"
           className="rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-zinc-100"
         />
       </div>
