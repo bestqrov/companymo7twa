@@ -1,13 +1,16 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import { useAppStore } from "@/store/useAppStore";
 import { useWorkflowStore } from "@/store/useWorkflowStore";
 import { ThumbnailCard, type Thumbnail } from "@/components/thumbnails/ThumbnailCard";
 
 export default function ThumbnailsPage() {
   const { currentProject } = useAppStore();
-  const selectedIdeaId = useWorkflowStore((state) => state.selectedIdeaId);
+  const ideaIdFromUrl = useSearchParams().get("ideaId");
+  const ideaIdFromStore = useWorkflowStore((state) => state.selectedIdeaId);
+  const selectedIdeaId = ideaIdFromUrl ?? ideaIdFromStore;
   const [prompt, setPrompt] = useState("");
   const [mode, setMode] = useState<"single" | "abtest">("single");
   const [thumbnails, setThumbnails] = useState<Thumbnail[]>([]);

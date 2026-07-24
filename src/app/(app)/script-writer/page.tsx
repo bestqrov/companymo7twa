@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useAppStore } from "@/store/useAppStore";
 import { useWorkflowStore } from "@/store/useWorkflowStore";
 import { ScriptSectionCard, type Script, type ScriptSectionKey } from "@/components/scripts/ScriptSectionCard";
@@ -10,7 +11,9 @@ const SECTION_ORDER: ScriptSectionKey[] = ["hook", "intro", "mainContent", "cta"
 
 export default function ScriptWriterPage() {
   const { currentProject } = useAppStore();
-  const selectedIdeaId = useWorkflowStore((state) => state.selectedIdeaId);
+  const ideaIdFromUrl = useSearchParams().get("ideaId");
+  const ideaIdFromStore = useWorkflowStore((state) => state.selectedIdeaId);
+  const selectedIdeaId = ideaIdFromUrl ?? ideaIdFromStore;
   const [topic, setTopic] = useState("");
   const [tone, setTone] = useState<Script["tone"]>("ENGAGING");
   const [script, setScript] = useState<Script | null>(null);

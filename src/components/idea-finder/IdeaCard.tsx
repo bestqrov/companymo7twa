@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useWorkflowStore } from "@/store/useWorkflowStore";
 
 export interface Idea {
@@ -27,13 +26,7 @@ function scoreColor(score: number): string {
 }
 
 export function IdeaCard({ idea }: { idea: Idea }) {
-  const router = useRouter();
   const setSelectedIdeaId = useWorkflowStore((state) => state.setSelectedIdeaId);
-
-  function useIdeaIn(href: string) {
-    setSelectedIdeaId(idea.id);
-    router.push(href);
-  }
 
   return (
     <div className="rounded-lg border border-surface-border bg-surface-raised p-4">
@@ -56,15 +49,18 @@ export function IdeaCard({ idea }: { idea: Idea }) {
       <p className="mt-3 text-[10px] uppercase tracking-wide text-zinc-500">Use this idea in</p>
       <div className="mt-1 flex gap-2">
         {IDEA_ACTIONS.map((action) => (
-          <button
+          <a
             key={action.href}
+            href={`${action.href}?ideaId=${idea.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
             title={action.label}
             aria-label={action.label}
-            onClick={() => useIdeaIn(action.href)}
+            onClick={() => setSelectedIdeaId(idea.id)}
             className="rounded-md border border-surface-border px-2 py-1 text-sm text-zinc-300 hover:text-accent"
           >
             {action.icon}
-          </button>
+          </a>
         ))}
       </div>
     </div>
