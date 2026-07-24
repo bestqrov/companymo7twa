@@ -29,11 +29,20 @@ export async function POST(request: Request, { params }: { params: { id: string 
   try {
     const accessToken = decrypt(user.googleAccessToken);
 
-    const imageRes = await fetch(thumbnail.imageUrl);
-    if (!imageRes.ok) {
-      throw new Error(`Failed to fetch thumbnail image: ${imageRes.status}`);
+    // Composited thumbnails are stored as base64 data URIs (see
+    // src/server/thumbnails.ts), not a fetchable remote URL — decode
+    // directly rather than trying to fetch a data: URI over the network.
+    let data: Buffer;
+    if (thumbnail.imageUrl.startsWith("data:")) {
+      const base64 = thumbnail.imageUrl.split(",")[1] ?? "";
+      data = Buffer.from(base64, "base64");
+    } else {
+      const imageRes = await fetch(thumbnail.imageUrl);
+      if (!imageRes.ok) {
+        throw new Error(`Failed to fetch thumbnail image: ${imageRes.status}`);
+      }
+      data = Buffer.from(await imageRes.arrayBuffer());
     }
-    const data = Buffer.from(await imageRes.arrayBuffer());
 
     const drive = getDriveClient(accessToken);
     const { fileId } = await drive.uploadFile({
