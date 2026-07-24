@@ -47,3 +47,70 @@ export async function fetchYoutubeTrendContext(apiKey: string, query: string): P
     return null;
   }
 }
+
+/**
+ * Resolves `channelQuery` (a /channel/UC... URL, an @handle, or a plain
+ * channel name) to a channel ID, then fetches a short text summary of that
+ * channel's top videos by view count, for use as inspiration context in the
+ * idea-generation prompt. Returns `null` on any failure — unresolvable
+ * channel, non-2xx response, no results — so callers can cleanly fall back,
+ * same "never throws" contract as `fetchYoutubeTrendContext`.
+ */
+export async function fetchYoutubeChannelContext(apiKey: string, channelQuery: string): Promise<string | null> {
+  try {
+    let channelId: string | null = null;
+
+    const channelIdMatch = channelQuery.match(/channel\/(UC[\w-]{22})/);
+    if (channelIdMatch) {
+      channelId = channelIdMatch[1];
+    }
+
+    if (!channelId) {
+      const handleMatch = channelQuery.match(/@([\w.-]+)/);
+      if (handleMatch) {
+        const handleRes = await fetch(
+          `https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=${encodeURIComponent(handleMatch[1])}&key=${apiKey}`
+        );
+        if (handleRes.ok) {
+          const handleData = await handleRes.json();
+          channelId = handleData.items?.[0]?.id ?? null;
+        }
+      }
+    }
+
+    if (!channelId) {
+      const searchRes = await fetch(
+        `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&maxResults=1&q=${encodeURIComponent(channelQuery)}&key=${apiKey}`
+      );
+      if (!searchRes.ok) {
+        return null;
+      }
+      const searchData = await searchRes.json();
+      channelId = searchData.items?.[0]?.snippet?.channelId ?? null;
+    }
+
+    if (!channelId) {
+      return null;
+    }
+
+    const videosUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&type=video&order=viewCount&maxResults=5&key=${apiKey}`;
+    const videosRes = await fetch(videosUrl);
+    if (!videosRes.ok) {
+      return null;
+    }
+    const videosData = await videosRes.json();
+
+    const summaries = (videosData.items ?? []).map((item: { snippet?: { title?: string } }) => {
+      const title = item.snippet?.title ?? "Unknown title";
+      return `- "${title}"`;
+    });
+
+    if (summaries.length === 0) {
+      return null;
+    }
+
+    return `Top videos from the inspiration channel:\n${summaries.join("\n")}`;
+  } catch {
+    return null;
+  }
+}
