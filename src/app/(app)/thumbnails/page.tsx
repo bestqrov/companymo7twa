@@ -41,8 +41,8 @@ export default function ThumbnailsPage() {
   useEffect(() => {
     setPrompt("");
     setError(null);
-    loadThumbnails();
-  }, [currentProject, loadThumbnails]);
+    setThumbnails([]);
+  }, [currentProject]);
 
   useEffect(() => {
     if (!selectedIdeaId || !currentProject) return;

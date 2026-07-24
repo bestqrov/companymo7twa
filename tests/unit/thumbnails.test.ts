@@ -1,5 +1,22 @@
 import { describe, it, expect } from "vitest";
-import { determineCtrSource, buildCtrFallbackPrompt, parseCtrFallbackResponse } from "@/server/thumbnails";
+import {
+  determineCtrSource,
+  buildCtrFallbackPrompt,
+  parseCtrFallbackResponse,
+  buildThumbnailImagePrompt,
+} from "@/server/thumbnails";
+
+describe("buildThumbnailImagePrompt", () => {
+  it("includes the user's scene description", () => {
+    const prompt = buildThumbnailImagePrompt("a red espresso cup with dramatic lighting");
+    expect(prompt).toContain("a red espresso cup with dramatic lighting");
+  });
+
+  it("instructs against rendering any text in the image", () => {
+    const prompt = buildThumbnailImagePrompt("a laptop on a desk");
+    expect(prompt.toLowerCase()).toContain("do not include any text");
+  });
+});
 
 describe("determineCtrSource", () => {
   it("returns HIGGSFIELD_PREDICTOR when a predicted CTR is available", () => {

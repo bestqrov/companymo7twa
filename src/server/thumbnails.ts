@@ -8,6 +8,23 @@ export function determineCtrSource(predictedCtr: number | null): CtrSource {
   return predictedCtr !== null ? "HIGGSFIELD_PREDICTOR" : "AI_ESTIMATE";
 }
 
+/**
+ * Wraps the user's plain-text description with the visual language of
+ * proven high-CTR YouTube thumbnails (high contrast, dramatic lighting,
+ * expressive close-up faces) before handing it to the image model. Image
+ * generation models render legible text unreliably (garbled letters), so
+ * text is explicitly excluded — the thumbnail relies on visual drama alone.
+ */
+export function buildThumbnailImagePrompt(userPrompt: string): string {
+  return `YouTube thumbnail image, 16:9, ultra high contrast, vibrant saturated colors, dramatic lighting, professional photography style.
+
+Scene: ${userPrompt}
+
+If a person is part of the scene, show a close-up of their face with an exaggerated, expressive reaction (shocked, excited, or intense) — eyes wide, strong emotion, direct eye contact with the camera. Bold, dynamic composition with a single clear focal point, no clutter or busy background details — the image must read clearly even at a small size.
+
+Do not include any text, letters, numbers, or words anywhere in the image — keep the design purely visual.`;
+}
+
 export function buildCtrFallbackPrompt(thumbnailPrompt: string): string {
   return `You are a YouTube thumbnail expert. A thumbnail was generated from this prompt:
 "${thumbnailPrompt}"
@@ -77,7 +94,7 @@ export async function createThumbnailsForProject(
   // (and already-paid-for) variants are still saved rather than lost.
   const thumbnails = [];
   for (let i = 0; i < variantCount; i++) {
-    const { url } = await generateImage(input.prompt);
+    const { url } = await generateImage(buildThumbnailImagePrompt(input.prompt));
 
     // The image is already generated (and paid for) at this point. If CTR
     // estimation fails (Claude API error, malformed response), don't let
