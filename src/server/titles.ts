@@ -1,3 +1,7 @@
+import { prisma } from "@/lib/prisma";
+import { getLlmClient } from "@/lib/llm";
+import { fetchYoutubeTrendContext } from "@/lib/youtube";
+
 export interface TitleGenerationInput {
   topic: string;
   youtubeContext?: string | null;
@@ -59,4 +63,55 @@ export function parseTitlesResponse(raw: string): GeneratedTitles {
   }
 
   return { titles: record.titles as string[], keywords: record.keywords as string[] };
+}
+
+export async function createTitleSetForIdeaOrTopic(
+  projectId: string,
+  ideaId: string | null,
+  youtubeApiKey: string | null,
+  topic: string
+) {
+  if (ideaId) {
+    const existing = await prisma.titleSet.findUnique({ where: { ideaId } });
+    if (existing) {
+      return { titleSet: existing, created: false };
+    }
+  }
+
+  const youtubeContext = youtubeApiKey ? await fetchYoutubeTrendContext(youtubeApiKey, topic) : null;
+
+  const llm = getLlmClient();
+  const raw = await llm.generateText(buildTitlesPrompt({ topic, youtubeContext }));
+  const generated = parseTitlesResponse(raw);
+
+  const titleSet = await prisma.titleSet.create({
+    data: {
+      projectId,
+      ideaId,
+      topic,
+      titles: generated.titles,
+      keywords: generated.keywords,
+    },
+  });
+
+  return { titleSet, created: true };
+}
+
+export async function regenerateTitleSet(titleSetId: string, youtubeApiKey: string | null) {
+  const existing = await prisma.titleSet.findUniqueOrThrow({ where: { id: titleSetId } });
+
+  const youtubeContext = youtubeApiKey ? await fetchYoutubeTrendContext(youtubeApiKey, existing.topic) : null;
+
+  const llm = getLlmClient();
+  const raw = await llm.generateText(buildTitlesPrompt({ topic: existing.topic, youtubeContext }));
+  const generated = parseTitlesResponse(raw);
+
+  return prisma.titleSet.update({
+    where: { id: titleSetId },
+    data: {
+      titles: generated.titles,
+      keywords: generated.keywords,
+      selectedTitle: null,
+    },
+  });
 }
