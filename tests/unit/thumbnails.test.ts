@@ -12,9 +12,14 @@ describe("buildThumbnailImagePrompt", () => {
     expect(prompt).toContain("a red espresso cup with dramatic lighting");
   });
 
-  it("instructs against rendering any text in the image", () => {
+  it("requests bold typography summarizing the topic", () => {
     const prompt = buildThumbnailImagePrompt("a laptop on a desk");
-    expect(prompt.toLowerCase()).toContain("do not include any text");
+    expect(prompt).toContain("Huge bold uppercase text");
+  });
+
+  it("requests the high-CTR viral-creator style", () => {
+    const prompt = buildThumbnailImagePrompt("a laptop on a desk");
+    expect(prompt).toContain("MrBeast, Ali Abdaal and Iman Gadzhi");
   });
 });
 

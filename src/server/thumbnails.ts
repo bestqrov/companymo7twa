@@ -9,20 +9,63 @@ export function determineCtrSource(predictedCtr: number | null): CtrSource {
 }
 
 /**
- * Wraps the user's plain-text description with the visual language of
- * proven high-CTR YouTube thumbnails (high contrast, dramatic lighting,
- * expressive close-up faces) before handing it to the image model. Image
- * generation models render legible text unreliably (garbled letters), so
- * text is explicitly excluded — the thumbnail relies on visual drama alone.
+ * Wraps the user's plain-text description with a detailed prompt template
+ * modeled on top-performing YouTube creators' thumbnail style (MrBeast, Ali
+ * Abdaal, Iman Gadzhi) — high contrast, extreme expression, bold typography,
+ * premium effects. Note: image generation models render legible text
+ * unreliably (garbled letters are a known failure mode), so the typography
+ * this asks for may come out imperfect — an accepted tradeoff the user opted
+ * into after seeing the alternative (a text-free prompt).
  */
 export function buildThumbnailImagePrompt(userPrompt: string): string {
-  return `YouTube thumbnail image, 16:9, ultra high contrast, vibrant saturated colors, dramatic lighting, professional photography style.
+  return `Create an ultra high CTR YouTube thumbnail in the style of the biggest viral YouTube creators.
 
-Scene: ${userPrompt}
+Scene/topic: ${userPrompt}
 
-If a person is part of the scene, show a close-up of their face with an exaggerated, expressive reaction (shocked, excited, or intense) — eyes wide, strong emotion, direct eye contact with the camera. Bold, dynamic composition with a single clear focal point, no clutter or busy background details — the image must read clearly even at a small size.
+Style:
+- Modern YouTube thumbnail
+- Extremely eye-catching
+- High contrast
+- Bright saturated colors
+- Red, yellow, green and white color palette
+- Cinematic lighting
+- Dramatic shadows
+- Glossy professional finish
+- Hyper realistic
 
-Do not include any text, letters, numbers, or words anywhere in the image — keep the design purely visual.`;
+Composition:
+- One large subject occupying 60-70% of the frame
+- Subject looking directly at camera
+- Extreme facial expression (shock, excitement, surprise)
+- Large bold headline area on the right
+- Dynamic diagonal composition
+- Clean background with simple gradients and glowing elements
+- Floating money, arrows, icons or visual effects depending on topic
+- Motion blur and depth of field
+- Thick outline around subject
+- Strong separation from background
+
+Typography:
+- Huge bold uppercase text summarizing the topic in 2-4 words
+- White, yellow and green colors
+- Thick black outline
+- Heavy drop shadow
+
+Effects:
+- Glow
+- Lens flare
+- Light streaks
+- Explosion particles
+- Floating cash
+- Red YouTube play icons
+- Premium advertising quality
+
+Quality:
+8K
+Ultra detailed
+Photorealistic
+Designed for maximum click-through rate
+Looks like MrBeast, Ali Abdaal and Iman Gadzhi thumbnail quality`;
 }
 
 export function buildCtrFallbackPrompt(thumbnailPrompt: string): string {
