@@ -11,12 +11,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { projectId, channelTopic, primaryNiche, targetAudience } = await request.json();
+  const { projectId, channelTopic, primaryNiche, targetAudience, inspirationChannel } = await request.json();
   if (
     typeof projectId !== "string" ||
     typeof channelTopic !== "string" ||
     typeof primaryNiche !== "string" ||
-    typeof targetAudience !== "string"
+    typeof targetAudience !== "string" ||
+    (inspirationChannel !== undefined && typeof inspirationChannel !== "string")
   ) {
     return NextResponse.json(
       { error: "projectId, channelTopic, primaryNiche, and targetAudience are required" },
@@ -40,6 +41,7 @@ export async function POST(request: Request) {
       channelTopic,
       primaryNiche,
       targetAudience,
+      inspirationChannel,
     });
   } catch (error) {
     console.error("Failed to generate ideas:", error);
