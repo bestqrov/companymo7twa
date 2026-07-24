@@ -36,7 +36,11 @@ export default function IdeaFinderPage() {
   }, [currentProject]);
 
   async function generateIdeas() {
-    if (!currentProject || !channelTopic.trim() || !primaryNiche.trim() || !targetAudience.trim()) return;
+    if (!currentProject) return;
+    if (!channelTopic.trim() || !primaryNiche.trim() || !targetAudience.trim()) {
+      setGenerateError("Channel Topic, Primary Niche, and Target Audience are required.");
+      return;
+    }
     setIsGenerating(true);
     setGenerateError(null);
     try {
@@ -53,7 +57,7 @@ export default function IdeaFinderPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        setIdeas([...data.ideas, ...ideas]);
+        setIdeas(data.ideas);
       } else {
         const data = await res.json().catch(() => null);
         setGenerateError(data?.error ?? "Failed to generate ideas. Please try again.");
