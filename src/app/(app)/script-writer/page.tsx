@@ -91,10 +91,12 @@ export default function ScriptWriterPage() {
         const data = await res.json();
         setScript(data.script);
       } else {
-        console.error("Failed to save section:", res.status);
+        const data = await res.json().catch(() => null);
+        setError(data?.error ?? "Failed to save section. Please try again.");
       }
     } catch (err) {
       console.error("Failed to save section:", err);
+      setError("Failed to save section. Please try again.");
     }
   }
 
