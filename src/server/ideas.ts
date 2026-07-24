@@ -1,7 +1,7 @@
 import type { ScoreSource } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getLlmClient } from "@/lib/llm";
-import { fetchYoutubeTrendContext } from "@/lib/youtube";
+import { fetchYoutubeTrendContext, fetchYoutubeChannelContext } from "@/lib/youtube";
 
 export interface IdeaGenerationInput {
   channelTopic: string;
@@ -80,11 +80,13 @@ export function determineScoreSource(usedRealYoutubeData: boolean): ScoreSource 
 export async function createIdeasForProject(
   projectId: string,
   youtubeApiKey: string | null,
-  input: { channelTopic: string; primaryNiche: string; targetAudience: string }
+  input: { channelTopic: string; primaryNiche: string; targetAudience: string; inspirationChannel?: string }
 ) {
-  const youtubeContext = youtubeApiKey
-    ? await fetchYoutubeTrendContext(youtubeApiKey, `${input.channelTopic} ${input.primaryNiche}`)
-    : null;
+  const youtubeContext = !youtubeApiKey
+    ? null
+    : input.inspirationChannel?.trim()
+      ? await fetchYoutubeChannelContext(youtubeApiKey, input.inspirationChannel.trim())
+      : await fetchYoutubeTrendContext(youtubeApiKey, `${input.channelTopic} ${input.primaryNiche}`);
 
   const scoreSource = determineScoreSource(youtubeContext !== null);
 
