@@ -89,10 +89,44 @@ interface ThumbnailCreativeBrief {
   object: string;
   background: string;
   color: string;
+  compositionPattern: string;
   thumbnailText: string;
   negativePrompt: string;
 }
 ```
+
+`compositionPattern` is new (beyond the user's original template) — it names
+which of four concrete, structural composition patterns this variant uses
+(see below). Without it, "money/charts/arrows if relevant" is abstract enough
+that Claude tends to drift toward generic photorealistic portraits instead of
+the specific composited-mockup look the user's reference actually shows —
+naming the pattern explicitly anchors the composition, while the other brief
+fields (`person`/`emotion`/`before`/`after`/`object`/`color`) still adapt the
+pattern's content to the real topic.
+
+### Reference composition patterns (fixed, not per-topic)
+
+Four concrete structural patterns, matching the four panels of the user's
+reference image exactly, always described to Claude as literal composition
+options in `buildThumbnailBriefPrompt` (not paraphrased into vaguer language):
+
+1. **Phone-to-laptop transformation** — subject holds a phone showing a
+   before-number (e.g. a bank balance), a laptop beside/behind them shows an
+   after-number (e.g. an earnings dashboard with a rising green line graph),
+   connected by one big bold colored arrow between the two numbers.
+2. **Zero-to-something reveal** — subject shows a phone/app screen with a
+   stark "0" stat (followers, sales, whatever the topic's starting point is)
+   next to a calendar/counter prop showing a time span, with a second device
+   or graphic showing the achieved result in bright green.
+3. **Day-1-vs-Day-7 split panel** — the frame is split in two (a hard vertical
+   divider, often a lightning-bolt or jagged crack line), left side shows the
+   subject dejected/before with a "before" label, right side shows the same
+   subject triumphant/after with an "after" label, a result graphic (cash
+   stacks, dashboard) anchoring the "after" side.
+4. **Secret-reveal / callout** — subject makes a hushing or pointing gesture
+   directly at camera, a screenshot/dashboard graphic sits beside them with
+   one specific number or row circled/highlighted in bright red as the "the
+   thing nobody told you" detail.
 
 ### `buildThumbnailBriefPrompt(input)`
 
@@ -124,8 +158,11 @@ message naming the missing/invalid field.
 
 Deterministically assembles the final prompt string from the brief, matching
 the user's "Final Prompt Generated" example's structure and vocabulary:
-opens with "Create an ultra high CTR YouTube thumbnail", weaves in
-`person`/`emotion`/`story`/`before`/`after`/`object`/`background`/`color`,
+opens with "Create an ultra high CTR YouTube thumbnail", describes the
+concrete `compositionPattern` layout (e.g. for phone-to-laptop
+transformation: "holds a phone displaying {before}... a laptop displays
+{after}... a huge glowing {color} arrow points from the phone to the
+laptop"), weaves in `person`/`emotion`/`story`/`object`/`background`/`color`,
 closes with the fixed photorealistic/DSLR/lighting/quality boilerplate, a
 "Bold typography: \"{thumbnailText}\"" line, "MrBeast style. Alex Hormozi
 style. Designed for maximum YouTube CTR. 16:9", and a final
@@ -135,15 +172,20 @@ brief step, keeping this function trivially testable.
 
 ### Per-variant variation
 
-A fixed list of `VARIATION_HINTS` (4 distinct short instructions covering
-different emotional/visual angles — e.g. dramatic before/after money
-transformation, single-shock-moment reaction, curiosity/mystery framing,
-comparison/versus framing) is cycled by variant index
-(`VARIATION_HINTS[i % VARIATION_HINTS.length]`) so a 4-variant A/B batch
-always spans 4 genuinely different creative directions, and a `single`-mode
-generation (1 variant) always gets the first hint. This directly fixes the
-observed bug (identical prompt every iteration) without depending on model
-randomness alone to produce variety.
+A fixed list of `VARIATION_HINTS`, one per reference composition pattern
+above (phone-to-laptop transformation, zero-to-something reveal,
+day-1-vs-day-7 split panel, secret-reveal/callout), is cycled by variant
+index (`VARIATION_HINTS[i % VARIATION_HINTS.length]`) so a 4-variant A/B
+batch always spans all 4 structural patterns — mirroring the 4 panels of the
+user's reference image exactly — instead of 4 samples of one vague
+instruction. A `single`-mode generation (1 variant) always gets the first
+pattern (phone-to-laptop transformation). Each hint explicitly names its
+pattern (Claude still fills in `person`/`emotion`/`before`/`after`/`object`/
+`color` to fit the real topic) and is echoed back into the brief's
+`compositionPattern` field so `buildThumbnailImagePromptFromBrief` can
+describe the concrete composition, not just abstract mood words. This
+directly fixes the observed bug (identical prompt every iteration) without
+depending on model randomness alone to produce variety.
 
 ### `createThumbnailsForProject` (rewritten body, same signature)
 
