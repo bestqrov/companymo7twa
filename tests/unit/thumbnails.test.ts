@@ -72,6 +72,11 @@ describe("buildThumbnailBriefPrompt", () => {
     expect(prompt).toContain("day-1-vs-day-7 split panel");
   });
 
+  it("instructs thumbnailText to match the topic's language", () => {
+    const prompt = buildThumbnailBriefPrompt({ topic: "any topic", variationHint: VARIATION_HINTS[0] });
+    expect(prompt).toContain("write it in the SAME language as the TOPIC");
+  });
+
   it("includes idea/script/title context when provided", () => {
     const prompt = buildThumbnailBriefPrompt({
       topic: "any topic",

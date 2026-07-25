@@ -98,7 +98,7 @@ TOPIC: ${input.topic}${contextBlock}
 Invent the specific creative details that fit this topic and composition pattern. Respond with ONLY a JSON object shaped like:
 {"niche": "...", "story": "...", "person": "...", "emotion": "...", "before": "...", "after": "...", "object": "...", "background": "...", "color": "...", "compositionPattern": "...", "thumbnailText": "...", "negativePrompt": "..."}
 
-"compositionPattern" must be a short restatement of which of the 4 composition patterns above you chose (matching the one given in "For THIS thumbnail specifically" above). "thumbnailText" is the exact bold on-thumbnail text (short, punchy, e.g. "$12 → $1,000"). "negativePrompt" is a comma-separated list of things to avoid in the image (e.g. "blurry, low quality, watermark, logo, illustration, cartoon, extra hands, extra fingers, duplicate people, cropped face, noise").
+"compositionPattern" must be a short restatement of which of the 4 composition patterns above you chose (matching the one given in "For THIS thumbnail specifically" above). "thumbnailText" is the exact bold on-thumbnail text (short, punchy, e.g. "$12 → $1,000") — write it in the SAME language as the TOPIC below (e.g. Arabic topic → Arabic thumbnailText, French topic → French thumbnailText), not translated to English. "negativePrompt" is a comma-separated list of things to avoid in the image (e.g. "blurry, low quality, watermark, logo, illustration, cartoon, extra hands, extra fingers, duplicate people, cropped face, noise").
 
 Do not include any text outside the JSON object.`;
 }
