@@ -1,6 +1,6 @@
 # ArwaTube AI Engine — Description & Tags — Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Build Description & Tags: a `DescriptionTagSet` Prisma model, business logic for generating and regenerating a description, tags, hashtags, a YouTube-taxonomy category, and a pinned-comment suggestion via Claude (informed by a linked idea's selected title/keywords when available), four API routes, and a real `/description-tags` page replacing its Phase 1 placeholder.
 
@@ -50,7 +50,7 @@ tests/
 **Files:**
 - Modify: `prisma/schema.prisma`
 
-- [ ] **Step 1: Add the `DescriptionTagSet` model**
+- [x] **Step 1: Add the `DescriptionTagSet` model**
 
 Add this model anywhere at the top level (e.g. after the existing `TitleSet` model):
 
@@ -74,7 +74,7 @@ model DescriptionTagSet {
 }
 ```
 
-- [ ] **Step 2: Add the relation fields on `Project` and `Idea`**
+- [x] **Step 2: Add the relation fields on `Project` and `Idea`**
 
 Find the `Project` model and add a `descriptionTagSets DescriptionTagSet[]` line alongside its other relation fields (next to `titleSets TitleSet[]`):
 
@@ -92,13 +92,13 @@ Find the `Idea` model and add a `descriptionTagSet DescriptionTagSet?` back-rela
   descriptionTagSet DescriptionTagSet?
 ```
 
-- [ ] **Step 3: Format and regenerate**
+- [x] **Step 3: Format and regenerate**
 
 Run: `npx prisma format`
 Run: `npx prisma generate`
 Expected: `Generated Prisma Client` success message, no errors. This does not require a live database connection.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add prisma/schema.prisma
@@ -113,7 +113,7 @@ git commit -m "feat: add DescriptionTagSet model to Prisma schema"
 - Create: `src/server/descriptionTags.ts`
 - Test: `tests/unit/descriptionTags.test.ts`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 // tests/unit/descriptionTags.test.ts
@@ -210,12 +210,12 @@ describe("parseDescriptionTagsResponse", () => {
 });
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `npx vitest run tests/unit/descriptionTags.test.ts`
 Expected: FAIL — `Cannot find module '@/server/descriptionTags'`
 
-- [ ] **Step 3: Create `src/server/descriptionTags.ts`** (full file for this task — Task 3 will extend it)
+- [x] **Step 3: Create `src/server/descriptionTags.ts`** (full file for this task — Task 3 will extend it)
 
 ```ts
 export const YOUTUBE_CATEGORIES = [
@@ -322,12 +322,12 @@ export function parseDescriptionTagsResponse(raw: string): GeneratedDescriptionT
 }
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `npx vitest run tests/unit/descriptionTags.test.ts`
 Expected: PASS (11 tests)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/server/descriptionTags.ts tests/unit/descriptionTags.test.ts
@@ -344,7 +344,7 @@ git commit -m "feat: add description & tags prompt-building and response-parsing
 
 This requires a live Postgres database to actually run. If no `DATABASE_URL` is reachable, write the code and test exactly as specified, verify via `npx tsc --noEmit`, and note in your report that live execution is deferred. **Do not run the bare `npm test` command in this task — only `npx vitest run tests/integration/descriptionTags.test.ts` as shown below.**
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 // tests/integration/descriptionTags.test.ts
@@ -466,12 +466,12 @@ describe("createDescriptionTagSetForIdeaOrTopic", () => {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `npx vitest run tests/integration/descriptionTags.test.ts`
 Expected: FAIL — `Cannot find export 'createDescriptionTagSetForIdeaOrTopic' from '@/server/descriptionTags'` (or, if no DB is reachable, a DB-connectivity error at `beforeEach` instead — either is an acceptable "red" state given the environment constraint).
 
-- [ ] **Step 3: Add `createDescriptionTagSetForIdeaOrTopic` and `regenerateDescriptionTagSet` to `src/server/descriptionTags.ts`**
+- [x] **Step 3: Add `createDescriptionTagSetForIdeaOrTopic` and `regenerateDescriptionTagSet` to `src/server/descriptionTags.ts`**
 
 Add these two imports at the top of the file:
 
@@ -548,17 +548,17 @@ export async function regenerateDescriptionTagSet(descriptionTagSetId: string) {
 }
 ```
 
-- [ ] **Step 4: Run the test to verify it passes**
+- [x] **Step 4: Run the test to verify it passes**
 
 Run: `npx vitest run tests/integration/descriptionTags.test.ts`
 Expected: PASS (3 tests), if a live `DATABASE_URL` is reachable and safe to use. If not, confirm the failure is a database-connectivity error, not a code/import error.
 
-- [ ] **Step 5: Run `npx tsc --noEmit` regardless of DB availability**
+- [x] **Step 5: Run `npx tsc --noEmit` regardless of DB availability**
 
 Run: `npx tsc --noEmit`
 Expected: no errors.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/server/descriptionTags.ts tests/integration/descriptionTags.test.ts
@@ -572,7 +572,7 @@ git commit -m "feat: add description & tags generation and regeneration orchestr
 **Files:**
 - Create: `src/app/api/description-tags/route.ts`
 
-- [ ] **Step 1: Create the route**
+- [x] **Step 1: Create the route**
 
 ```ts
 // src/app/api/description-tags/route.ts
@@ -648,17 +648,17 @@ export async function GET(request: Request) {
 
 Note: unlike `/api/titles`, there is no YouTube API key / `decrypt` step here — Description & Tags generation is not informed by real YouTube trend data per the design spec, only by the linked idea's `TitleSet` (if any), which `createDescriptionTagSetForIdeaOrTopic` fetches internally.
 
-- [ ] **Step 2: Type-check**
+- [x] **Step 2: Type-check**
 
 Run: `npx tsc --noEmit`
 Expected: no errors.
 
-- [ ] **Step 3: Build**
+- [x] **Step 3: Build**
 
 Run: `npm run build`
 Expected: succeeds, `/api/description-tags` listed among the routes.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/app/api/description-tags/route.ts
@@ -672,7 +672,7 @@ git commit -m "feat: add POST/GET /api/description-tags routes"
 **Files:**
 - Create: `src/app/api/description-tags/[id]/route.ts`
 
-- [ ] **Step 1: Create the route**
+- [x] **Step 1: Create the route**
 
 ```ts
 // src/app/api/description-tags/[id]/route.ts
@@ -729,17 +729,17 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
 Note the ownership check uses a nested relation filter (`project: { userId: session.user.id }`), matching the exact pattern established in `/api/titles/[id]/route.ts` and `/api/scripts/[id]/route.ts`. `field`/`value` mirror Script Writer's `{section, content}` PATCH shape, generalized to one of 5 fields with per-field type + category-taxonomy validation, enforcing the spec's "category must be a real YouTube category" rule server-side, not just in the UI's `<select>`.
 
-- [ ] **Step 2: Type-check**
+- [x] **Step 2: Type-check**
 
 Run: `npx tsc --noEmit`
 Expected: no errors.
 
-- [ ] **Step 3: Build**
+- [x] **Step 3: Build**
 
 Run: `npm run build`
 Expected: succeeds, `/api/description-tags/[id]` listed among the routes.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add "src/app/api/description-tags/[id]/route.ts"
@@ -753,7 +753,7 @@ git commit -m "feat: add PATCH /api/description-tags/:id route for editing field
 **Files:**
 - Create: `src/app/api/description-tags/[id]/regenerate/route.ts`
 
-- [ ] **Step 1: Create the route**
+- [x] **Step 1: Create the route**
 
 ```ts
 // src/app/api/description-tags/[id]/regenerate/route.ts
@@ -788,17 +788,17 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
 Note: the ownership/existence check (`prisma.descriptionTagSet.findFirst` → 404) happens **before** the try/catch wrapping the actual regeneration call, so a missing/foreign set returns 404, not a misleading 502 — the same ordering used in `/api/titles/[id]/regenerate/route.ts` and `/api/scripts/[id]/regenerate/route.ts`. Don't reorder this.
 
-- [ ] **Step 2: Type-check**
+- [x] **Step 2: Type-check**
 
 Run: `npx tsc --noEmit`
 Expected: no errors.
 
-- [ ] **Step 3: Build**
+- [x] **Step 3: Build**
 
 Run: `npm run build`
 Expected: succeeds, `/api/description-tags/[id]/regenerate` listed among the routes.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add "src/app/api/description-tags/[id]/regenerate/route.ts"
@@ -813,7 +813,7 @@ git commit -m "feat: add POST /api/description-tags/:id/regenerate route"
 - Create: `src/components/descriptionTags/EditableChipList.tsx`
 - Modify: `src/app/(app)/description-tags/page.tsx`
 
-- [ ] **Step 1: Create the `EditableChipList` component**
+- [x] **Step 1: Create the `EditableChipList` component**
 
 ```tsx
 // src/components/descriptionTags/EditableChipList.tsx
@@ -878,7 +878,7 @@ export function EditableChipList({
 }
 ```
 
-- [ ] **Step 2: Replace the placeholder page**
+- [x] **Step 2: Replace the placeholder page**
 
 Replace the entire contents of `src/app/(app)/description-tags/page.tsx` with:
 
@@ -1139,17 +1139,17 @@ export default function DescriptionTagsPage() {
 }
 ```
 
-- [ ] **Step 3: Type-check**
+- [x] **Step 3: Type-check**
 
 Run: `npx tsc --noEmit`
 Expected: no errors.
 
-- [ ] **Step 4: Build**
+- [x] **Step 4: Build**
 
 Run: `npm run build`
 Expected: succeeds, `/description-tags` still listed among the routes (now dynamic, not a static placeholder).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/components/descriptionTags/EditableChipList.tsx "src/app/(app)/description-tags/page.tsx"
@@ -1160,27 +1160,27 @@ git commit -m "feat: replace Description & Tags placeholder with real generation
 
 ## Task 8: Final Verification
 
-- [ ] **Step 1: Run the unit test suite (named files only, never the bare `npm test`)**
+- [x] **Step 1: Run the unit test suite (named files only, never the bare `npm test`)**
 
 Run: `npx vitest run tests/unit`
 Expected: all unit test files pass, including the 11 new tests in `tests/unit/descriptionTags.test.ts` alongside every prior phase's unit tests.
 
-- [ ] **Step 2: Attempt the integration test for this phase only**
+- [x] **Step 2: Attempt the integration test for this phase only**
 
 Run: `npx vitest run tests/integration/descriptionTags.test.ts`
 Expected: PASS (3 tests) if a live, safe-to-use `DATABASE_URL` is available; otherwise a DB-connectivity error, which is an accepted outcome — do NOT run any other integration test file or the bare `npm test` to "double check".
 
-- [ ] **Step 3: Run a full production build**
+- [x] **Step 3: Run a full production build**
 
 Run: `npm run build`
 Expected: succeeds, with `/api/description-tags`, `/api/description-tags/[id]`, `/api/description-tags/[id]/regenerate`, and `/description-tags` present among the routes alongside everything from prior phases.
 
-- [ ] **Step 4: Run `npx tsc --noEmit` across the whole project**
+- [x] **Step 4: Run `npx tsc --noEmit` across the whole project**
 
 Run: `npx tsc --noEmit`
 Expected: no errors anywhere in the project.
 
-- [ ] **Step 5: Commit any final fixes**
+- [x] **Step 5: Commit any final fixes**
 
 ```bash
 git add -A
