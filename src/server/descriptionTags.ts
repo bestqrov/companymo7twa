@@ -1,3 +1,6 @@
+import { prisma } from "@/lib/prisma";
+import { getLlmClient } from "@/lib/llm";
+
 export const YOUTUBE_CATEGORIES = [
   "Film & Animation",
   "Autos & Vehicles",
@@ -99,4 +102,68 @@ export function parseDescriptionTagsResponse(raw: string): GeneratedDescriptionT
     category: record.category,
     pinnedComment: record.pinnedComment,
   };
+}
+
+async function fetchTitleSetContext(
+  ideaId: string | null
+): Promise<{ selectedTitle: string | null; keywords: string[] | null }> {
+  if (!ideaId) {
+    return { selectedTitle: null, keywords: null };
+  }
+  const titleSet = await prisma.titleSet.findUnique({ where: { ideaId } });
+  if (!titleSet) {
+    return { selectedTitle: null, keywords: null };
+  }
+  return { selectedTitle: titleSet.selectedTitle, keywords: titleSet.keywords };
+}
+
+export async function createDescriptionTagSetForIdeaOrTopic(projectId: string, ideaId: string | null, topic: string) {
+  if (ideaId) {
+    const existing = await prisma.descriptionTagSet.findUnique({ where: { ideaId } });
+    if (existing) {
+      return { descriptionTagSet: existing, created: false };
+    }
+  }
+
+  const { selectedTitle, keywords } = await fetchTitleSetContext(ideaId);
+
+  const llm = getLlmClient();
+  const raw = await llm.generateText(buildDescriptionTagsPrompt({ topic, selectedTitle, keywords }));
+  const generated = parseDescriptionTagsResponse(raw);
+
+  const descriptionTagSet = await prisma.descriptionTagSet.create({
+    data: {
+      projectId,
+      ideaId,
+      topic,
+      description: generated.description,
+      tags: generated.tags,
+      hashtags: generated.hashtags,
+      category: generated.category,
+      pinnedComment: generated.pinnedComment,
+    },
+  });
+
+  return { descriptionTagSet, created: true };
+}
+
+export async function regenerateDescriptionTagSet(descriptionTagSetId: string) {
+  const existing = await prisma.descriptionTagSet.findUniqueOrThrow({ where: { id: descriptionTagSetId } });
+
+  const { selectedTitle, keywords } = await fetchTitleSetContext(existing.ideaId);
+
+  const llm = getLlmClient();
+  const raw = await llm.generateText(buildDescriptionTagsPrompt({ topic: existing.topic, selectedTitle, keywords }));
+  const generated = parseDescriptionTagsResponse(raw);
+
+  return prisma.descriptionTagSet.update({
+    where: { id: descriptionTagSetId },
+    data: {
+      description: generated.description,
+      tags: generated.tags,
+      hashtags: generated.hashtags,
+      category: generated.category,
+      pinnedComment: generated.pinnedComment,
+    },
+  });
 }
