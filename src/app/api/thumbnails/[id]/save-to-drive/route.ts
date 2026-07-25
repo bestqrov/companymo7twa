@@ -29,9 +29,10 @@ export async function POST(request: Request, { params }: { params: { id: string 
   try {
     const accessToken = decrypt(user.googleAccessToken);
 
-    // Composited thumbnails are stored as base64 data URIs (see
-    // src/server/thumbnails.ts), not a fetchable remote URL — decode
-    // directly rather than trying to fetch a data: URI over the network.
+    // Thumbnails generated before the creative-brief rework (see
+    // src/server/thumbnails.ts) are stored as base64 data URIs rather than a
+    // fetchable remote URL — decode those directly instead of fetching.
+    // Current thumbnails store a real Higgsfield-hosted URL instead.
     let data: Buffer;
     if (thumbnail.imageUrl.startsWith("data:")) {
       const base64 = thumbnail.imageUrl.split(",")[1] ?? "";
