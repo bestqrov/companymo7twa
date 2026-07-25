@@ -6,7 +6,33 @@ vi.mock("@/lib/higgsfield", () => ({
   predictCtr: async () => null,
 }));
 
-const generateText = vi.fn(async () => JSON.stringify({ ctrEstimate: 6 }));
+const validBrief = {
+  niche: "personal finance",
+  story: "went from broke to profitable in a week",
+  person: "a young entrepreneur in his 20s",
+  emotion: "shocked, wide-eyed disbelief",
+  before: "$12.43 bank balance",
+  after: "$1,000 earnings",
+  object: "smartphone and laptop",
+  background: "dark cinematic home office",
+  color: "green and red",
+  compositionPattern: "phone-to-laptop transformation",
+  thumbnailText: "$12 → $1,000",
+  negativePrompt: "blurry, low quality, watermark",
+};
+
+// generateText is called twice per variant under the new pipeline: once to
+// generate the creative brief, once (via estimateCtrWithFallback's LLM
+// fallback) to estimate CTR. buildCtrFallbackPrompt's own template literally
+// contains the string `{"ctrEstimate": 0-20}`, so branching on that
+// substring reliably tells the two calls apart — the brief prompt never
+// contains it.
+const generateText = vi.fn(async (prompt: string) => {
+  if (prompt.includes("ctrEstimate")) {
+    return JSON.stringify({ ctrEstimate: 6 });
+  }
+  return JSON.stringify(validBrief);
+});
 
 vi.mock("@/lib/llm", () => ({
   getLlmClient: () => ({
@@ -19,7 +45,12 @@ import { createThumbnailsForProject } from "@/server/thumbnails";
 describe("createThumbnailsForProject", () => {
   beforeEach(async () => {
     generateText.mockClear();
-    generateText.mockImplementation(async () => JSON.stringify({ ctrEstimate: 6 }));
+    generateText.mockImplementation(async (prompt: string) => {
+      if (prompt.includes("ctrEstimate")) {
+        return JSON.stringify({ ctrEstimate: 6 });
+      }
+      return JSON.stringify(validBrief);
+    });
     await prisma.thumbnail.deleteMany();
     await prisma.idea.deleteMany();
     await prisma.projectSettings.deleteMany();
@@ -50,7 +81,7 @@ describe("createThumbnailsForProject", () => {
     expect(thumbnails[0].imageUrl).toBe("https://higgsfield.ai/img/generated.png");
   });
 
-  it("persists 4 thumbnails sharing one variantGroup in abtest mode", async () => {
+  it("persists 4 thumbnails sharing one variantGroup in abtest mode, each from a different brief prompt", async () => {
     const user = await prisma.user.create({ data: { email: "creator2@example.com", name: "Creator Two" } });
     const project = await prisma.project.create({
       data: { userId: user.id, name: "Test Channel 2", isActive: true, settings: { create: {} } },
@@ -64,11 +95,23 @@ describe("createThumbnailsForProject", () => {
     expect(thumbnails).toHaveLength(4);
     const variantGroups = new Set(thumbnails.map((t) => t.variantGroup));
     expect(variantGroups.size).toBe(1);
+
+    const briefPromptCalls = generateText.mock.calls
+      .map((call) => call[0] as string)
+      .filter((prompt) => !prompt.includes("ctrEstimate"));
+    expect(briefPromptCalls).toHaveLength(4);
+    const uniqueVariationHints = new Set(
+      briefPromptCalls.map((p) => p.split("For THIS thumbnail specifically:")[1])
+    );
+    expect(uniqueVariationHints.size).toBe(4);
   });
 
   it("persists the thumbnail with a neutral fallback CTR when CTR estimation throws", async () => {
-    generateText.mockImplementation(async () => {
-      throw new Error("Claude API failure");
+    generateText.mockImplementation(async (prompt: string) => {
+      if (prompt.includes("ctrEstimate")) {
+        throw new Error("Claude API failure");
+      }
+      return JSON.stringify(validBrief);
     });
 
     const user = await prisma.user.create({ data: { email: "creator3@example.com", name: "Creator Three" } });
