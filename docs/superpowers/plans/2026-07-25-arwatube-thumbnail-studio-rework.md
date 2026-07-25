@@ -1,6 +1,6 @@
 # ArwaTube AI Engine — Thumbnail Studio Rework — Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Rework `src/server/thumbnails.ts`'s generation pipeline: replace the static cutout-template prompt with a two-step Claude-directed pipeline (a "creative brief" JSON call, then a deterministic template that assembles the final image prompt), fix the bug where all 4 A/B variants used the identical prompt, and bake the headline text directly into the AI image instead of compositing it afterward.
 
@@ -36,7 +36,7 @@ No Prisma schema changes. No API route changes (`src/app/api/thumbnails/route.ts
 - Modify: `src/server/thumbnails.ts` (add new code, don't remove anything)
 - Modify: `tests/unit/thumbnails.test.ts` (add new tests, don't remove anything)
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Add these imports and describe blocks to `tests/unit/thumbnails.test.ts`, **on top of** its existing content (don't remove the existing `sharp` import or any existing describe block yet — that happens in Task 2):
 
@@ -212,12 +212,12 @@ describe("buildThumbnailImagePromptFromBrief", () => {
 });
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `npx vitest run tests/unit/thumbnails.test.ts`
 Expected: FAIL — `buildThumbnailBriefPrompt` (and the other 3 new names) are not exported from `@/server/thumbnails`.
 
-- [ ] **Step 3: Add the new pipeline to `src/server/thumbnails.ts`**
+- [x] **Step 3: Add the new pipeline to `src/server/thumbnails.ts`**
 
 Insert this new code block into `src/server/thumbnails.ts` directly after the existing imports (before `export function determineCtrSource`) — everything already in the file stays exactly as-is for this task:
 
@@ -389,17 +389,17 @@ Negative prompt: ${brief.negativePrompt}`;
 }
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `npx vitest run tests/unit/thumbnails.test.ts`
 Expected: PASS — all existing tests still pass (nothing removed yet) plus all new tests pass (should be in the 40s count given the per-field loop generates 24 tests alone).
 
-- [ ] **Step 5: Run `npx tsc --noEmit`**
+- [x] **Step 5: Run `npx tsc --noEmit`**
 
 Run: `npx tsc --noEmit`
 Expected: no errors.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/server/thumbnails.ts tests/unit/thumbnails.test.ts
@@ -415,7 +415,7 @@ git commit -m "feat: add creative-brief-directed thumbnail prompt pipeline"
 - Modify: `tests/unit/thumbnails.test.ts`
 - Modify: `tests/integration/thumbnails.test.ts`
 
-- [ ] **Step 1: Remove the now-dead old functions from `src/server/thumbnails.ts`**
+- [x] **Step 1: Remove the now-dead old functions from `src/server/thumbnails.ts`**
 
 Delete these from the file entirely (they're being replaced by the Task 1 pipeline):
 - `import sharp from "sharp";` (the import line)
@@ -428,7 +428,7 @@ Delete these from the file entirely (they're being replaced by the Task 1 pipeli
 
 Everything else in the file (the Task 1 additions, `determineCtrSource`, `buildCtrFallbackPrompt`, `parseCtrFallbackResponse`, `estimateCtrWithFallback`) stays unchanged.
 
-- [ ] **Step 2: Add a workflow-context helper and rewrite `createThumbnailsForProject`**
+- [x] **Step 2: Add a workflow-context helper and rewrite `createThumbnailsForProject`**
 
 Add this helper directly above `createThumbnailsForProject`:
 
@@ -519,16 +519,16 @@ export async function createThumbnailsForProject(
 
 Note: `imageUrl` now stores the Higgsfield-hosted URL directly — no more base64 data-URI compositing. `estimateCtrWithFallback` is unchanged and now receives each variant's real assembled `finalPrompt` instead of the previously-shared raw `input.prompt`, so CTR estimates genuinely differ per variant too.
 
-- [ ] **Step 3: Remove the now-dead old tests from `tests/unit/thumbnails.test.ts`**
+- [x] **Step 3: Remove the now-dead old tests from `tests/unit/thumbnails.test.ts`**
 
 Remove the `sharp` import line (`import sharp from "sharp";`), remove `buildThumbnailImagePrompt`, `buildHeadlinePrompt`, and `compositeHeadlineOntoImage` from the `@/server/thumbnails` import list, and delete these three `describe` blocks entirely: `describe("buildThumbnailImagePrompt", ...)`, `describe("buildHeadlinePrompt", ...)`, `describe("compositeHeadlineOntoImage", ...)`. Everything else in the file (the Task 1 additions and the `determineCtrSource`/`buildCtrFallbackPrompt`/`parseCtrFallbackResponse` blocks) stays.
 
-- [ ] **Step 4: Run unit tests to verify they pass**
+- [x] **Step 4: Run unit tests to verify they pass**
 
 Run: `npx vitest run tests/unit/thumbnails.test.ts`
 Expected: PASS, no `sharp`-related or old-function-related failures.
 
-- [ ] **Step 5: Update the integration test's mocks**
+- [x] **Step 5: Update the integration test's mocks**
 
 Replace the entire contents of `tests/integration/thumbnails.test.ts` with:
 
@@ -670,17 +670,17 @@ describe("createThumbnailsForProject", () => {
 });
 ```
 
-- [ ] **Step 6: Run the integration test to verify it passes**
+- [x] **Step 6: Run the integration test to verify it passes**
 
 Run: `npx vitest run tests/integration/thumbnails.test.ts`
 Expected: PASS (3 tests), if a live `DATABASE_URL` is reachable and safe to use. If not, confirm the failure is a database-connectivity error, not a code/import error.
 
-- [ ] **Step 7: Run `npx tsc --noEmit`**
+- [x] **Step 7: Run `npx tsc --noEmit`**
 
 Run: `npx tsc --noEmit`
 Expected: no errors.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/server/thumbnails.ts tests/unit/thumbnails.test.ts tests/integration/thumbnails.test.ts
@@ -691,27 +691,27 @@ git commit -m "feat: rewire thumbnail generation to the creative-brief pipeline,
 
 ## Task 3: Final Verification
 
-- [ ] **Step 1: Run the unit test suite (named files only, never the bare `npm test`)**
+- [x] **Step 1: Run the unit test suite (named files only, never the bare `npm test`)**
 
 Run: `npx vitest run tests/unit`
 Expected: all unit test files pass, including the rewritten `tests/unit/thumbnails.test.ts`, alongside every prior phase's unit tests.
 
-- [ ] **Step 2: Attempt the integration test for this phase only**
+- [x] **Step 2: Attempt the integration test for this phase only**
 
 Run: `npx vitest run tests/integration/thumbnails.test.ts`
 Expected: PASS (3 tests) if a live, safe-to-use `DATABASE_URL` is available; otherwise a DB-connectivity error, which is an accepted outcome — do NOT run any other integration test file or the bare `npm test` to "double check".
 
-- [ ] **Step 3: Run a full production build**
+- [x] **Step 3: Run a full production build**
 
 Run: `npm run build`
 Expected: succeeds — no route changes expected, but confirms nothing else in the app broke (e.g. anything importing `sharp`-related exports from `src/server/thumbnails.ts` that no longer exist).
 
-- [ ] **Step 4: Run `npx tsc --noEmit` across the whole project**
+- [x] **Step 4: Run `npx tsc --noEmit` across the whole project**
 
 Run: `npx tsc --noEmit`
 Expected: no errors anywhere in the project.
 
-- [ ] **Step 5: Commit any final fixes**
+- [x] **Step 5: Commit any final fixes**
 
 ```bash
 git add -A
