@@ -1,3 +1,7 @@
+import { prisma } from "@/lib/prisma";
+import { getLlmClient } from "@/lib/llm";
+import { generateImage } from "@/lib/higgsfield";
+
 export type Platform = "TIKTOK" | "YOUTUBE_SHORTS" | "INSTAGRAM_REELS" | "FACEBOOK_REELS";
 
 export interface WorkflowContext {
@@ -165,4 +169,98 @@ Do not include any text outside the JSON object.`;
 export function parseSinglePlatformVariantResponse(raw: string, platform: Platform): GeneratedVariant {
   const record = extractJsonObject(raw);
   return validateVariant(record, platform, platform === "INSTAGRAM_REELS");
+}
+
+const PLATFORM_ORDER: Platform[] = ["TIKTOK", "YOUTUBE_SHORTS", "INSTAGRAM_REELS", "FACEBOOK_REELS"];
+
+export async function fetchWorkflowContext(ideaId: string | null): Promise<WorkflowContext> {
+  if (!ideaId) {
+    return { scriptHook: null, scriptMainContent: null, selectedTitle: null, hashtags: null };
+  }
+
+  const [script, titleSet, descriptionTagSet] = await Promise.all([
+    prisma.script.findUnique({ where: { ideaId } }),
+    prisma.titleSet.findUnique({ where: { ideaId } }),
+    prisma.descriptionTagSet.findUnique({ where: { ideaId } }),
+  ]);
+
+  return {
+    scriptHook: script?.hook ?? null,
+    scriptMainContent: script?.mainContent ?? null,
+    selectedTitle: titleSet?.selectedTitle ?? null,
+    hashtags: descriptionTagSet?.hashtags ?? null,
+  };
+}
+
+export async function createPlatformVariantsForIdeaOrTopic(projectId: string, ideaId: string | null, topic: string) {
+  if (ideaId) {
+    const existing = await prisma.platformVariant.findMany({ where: { ideaId } });
+    if (existing.length > 0) {
+      return { platformVariants: existing, created: false };
+    }
+  }
+
+  const context = await fetchWorkflowContext(ideaId);
+  const llm = getLlmClient();
+  const raw = await llm.generateText(buildPlatformVariantsPrompt({ topic, ...context }));
+  const generated = parsePlatformVariantsResponse(raw);
+
+  const { url: coverImageUrl } = await generateImage(generated.instagramReels.coverImagePrompt);
+
+  const dataByPlatform: Record<Platform, GeneratedVariant> = {
+    TIKTOK: generated.tiktok,
+    YOUTUBE_SHORTS: generated.youtubeShorts,
+    INSTAGRAM_REELS: generated.instagramReels,
+    FACEBOOK_REELS: generated.facebookReels,
+  };
+
+  const platformVariants = await prisma.$transaction(
+    PLATFORM_ORDER.map((platform) =>
+      prisma.platformVariant.create({
+        data: {
+          projectId,
+          ideaId,
+          platform,
+          topic,
+          hook: dataByPlatform[platform].hook,
+          caption: dataByPlatform[platform].caption,
+          hashtags: dataByPlatform[platform].hashtags,
+          coverImagePrompt: platform === "INSTAGRAM_REELS" ? generated.instagramReels.coverImagePrompt : null,
+          coverImageUrl: platform === "INSTAGRAM_REELS" ? coverImageUrl : null,
+        },
+      })
+    )
+  );
+
+  return { platformVariants, created: true };
+}
+
+export async function regeneratePlatformVariant(variantId: string) {
+  const existing = await prisma.platformVariant.findUniqueOrThrow({ where: { id: variantId } });
+
+  const context = await fetchWorkflowContext(existing.ideaId);
+  const llm = getLlmClient();
+  const raw = await llm.generateText(
+    buildSinglePlatformVariantPrompt(existing.platform, { topic: existing.topic, ...context })
+  );
+  const generated = parseSinglePlatformVariantResponse(raw, existing.platform);
+
+  let coverImagePrompt = existing.coverImagePrompt;
+  let coverImageUrl = existing.coverImageUrl;
+  if (existing.platform === "INSTAGRAM_REELS" && generated.coverImagePrompt) {
+    coverImagePrompt = generated.coverImagePrompt;
+    const result = await generateImage(generated.coverImagePrompt);
+    coverImageUrl = result.url;
+  }
+
+  return prisma.platformVariant.update({
+    where: { id: variantId },
+    data: {
+      hook: generated.hook,
+      caption: generated.caption,
+      hashtags: generated.hashtags,
+      coverImagePrompt,
+      coverImageUrl,
+    },
+  });
 }
