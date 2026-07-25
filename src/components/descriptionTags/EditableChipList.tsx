@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export function EditableChipList({
   label,
@@ -13,10 +13,6 @@ export function EditableChipList({
 }) {
   const [localChips, setLocalChips] = useState(chips);
   const [draft, setDraft] = useState("");
-
-  useEffect(() => {
-    setLocalChips(chips);
-  }, [chips]);
 
   function removeChip(index: number) {
     const next = localChips.filter((_, i) => i !== index);

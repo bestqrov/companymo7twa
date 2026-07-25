@@ -26,6 +26,7 @@ export default function DescriptionTagsPage() {
 
   const [topic, setTopic] = useState("");
   const [set, setSet] = useState<DescriptionTagSet | null>(null);
+  const [revision, setRevision] = useState(0);
   const [descriptionDraft, setDescriptionDraft] = useState("");
   const [pinnedCommentDraft, setPinnedCommentDraft] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -49,6 +50,7 @@ export default function DescriptionTagsPage() {
           const existing = sets.find((s) => s.ideaId === selectedIdeaId);
           if (existing) {
             setSet(existing);
+            setRevision((r) => r + 1);
           }
         }
       })
@@ -72,7 +74,8 @@ export default function DescriptionTagsPage() {
   useEffect(() => {
     setDescriptionDraft(set?.description ?? "");
     setPinnedCommentDraft(set?.pinnedComment ?? "");
-  }, [set]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [revision]);
 
   async function generate() {
     if (!currentProject || !topic.trim()) return;
@@ -87,6 +90,7 @@ export default function DescriptionTagsPage() {
       if (res.ok) {
         const data = await res.json();
         setSet(data.descriptionTagSet);
+        setRevision((r) => r + 1);
       } else {
         const data = await res.json().catch(() => null);
         setError(data?.error ?? "Failed to generate metadata. Please try again.");
@@ -129,6 +133,7 @@ export default function DescriptionTagsPage() {
       if (res.ok) {
         const data = await res.json();
         setSet(data.descriptionTagSet);
+        setRevision((r) => r + 1);
       } else {
         const data = await res.json().catch(() => null);
         setError(data?.error ?? "Failed to regenerate metadata. Please try again.");
@@ -178,8 +183,18 @@ export default function DescriptionTagsPage() {
             />
           </div>
 
-          <EditableChipList label="Tags" chips={set.tags} onSave={(chips) => saveField("tags", chips)} />
-          <EditableChipList label="Hashtags" chips={set.hashtags} onSave={(chips) => saveField("hashtags", chips)} />
+          <EditableChipList
+            key={`tags-${revision}`}
+            label="Tags"
+            chips={set.tags}
+            onSave={(chips) => saveField("tags", chips)}
+          />
+          <EditableChipList
+            key={`hashtags-${revision}`}
+            label="Hashtags"
+            chips={set.hashtags}
+            onSave={(chips) => saveField("hashtags", chips)}
+          />
 
           <div>
             <p className="text-[10px] uppercase tracking-wide text-zinc-500">Category</p>
