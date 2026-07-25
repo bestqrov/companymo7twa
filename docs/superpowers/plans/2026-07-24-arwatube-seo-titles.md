@@ -1,6 +1,6 @@
 # ArwaTube AI Engine — SEO Titles & Keyword Research — Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Build SEO Titles & Keyword Research: a `TitleSet` Prisma model, business logic for generating and regenerating 8 titles + 10 keywords via Claude (optionally informed by real YouTube trend data), four API routes, and a real `/seo-titles` page replacing its Phase 1 placeholder.
 
@@ -47,7 +47,7 @@ tests/
 **Files:**
 - Modify: `prisma/schema.prisma`
 
-- [ ] **Step 1: Add the `TitleSet` model**
+- [x] **Step 1: Add the `TitleSet` model**
 
 Add this model anywhere at the top level (e.g. after the existing `Script` model):
 
@@ -69,7 +69,7 @@ model TitleSet {
 }
 ```
 
-- [ ] **Step 2: Add the relation fields on `Project` and `Idea`**
+- [x] **Step 2: Add the relation fields on `Project` and `Idea`**
 
 Find the `Project` model and add a `titleSets TitleSet[]` line alongside its other relation fields (next to `scripts Script[]`):
 
@@ -85,13 +85,13 @@ Find the `Idea` model and add a `titleSet TitleSet?` back-relation line (singula
   titleSet   TitleSet?
 ```
 
-- [ ] **Step 3: Format and regenerate**
+- [x] **Step 3: Format and regenerate**
 
 Run: `npx prisma format`
 Run: `npx prisma generate`
 Expected: `Generated Prisma Client` success message, no errors. This does not require a live database connection.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add prisma/schema.prisma
@@ -106,7 +106,7 @@ git commit -m "feat: add TitleSet model to Prisma schema"
 - Create: `src/server/titles.ts`
 - Test: `tests/unit/titles.test.ts`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 // tests/unit/titles.test.ts
@@ -190,12 +190,12 @@ describe("parseTitlesResponse", () => {
 });
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `npx vitest run tests/unit/titles.test.ts`
 Expected: FAIL — `Cannot find module '@/server/titles'`
 
-- [ ] **Step 3: Create `src/server/titles.ts`** (full file for this task — Task 3 will extend it)
+- [x] **Step 3: Create `src/server/titles.ts`** (full file for this task — Task 3 will extend it)
 
 ```ts
 export interface TitleGenerationInput {
@@ -262,12 +262,12 @@ export function parseTitlesResponse(raw: string): GeneratedTitles {
 }
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `npx vitest run tests/unit/titles.test.ts`
 Expected: PASS (9 tests)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/server/titles.ts tests/unit/titles.test.ts
@@ -284,7 +284,7 @@ git commit -m "feat: add SEO titles prompt-building and response-parsing logic"
 
 This requires a live Postgres database to actually run. If no `DATABASE_URL` is reachable, write the code and test exactly as specified, verify via `npx tsc --noEmit`, and note in your report that live execution is deferred. **Do not run the bare `npm test` command in this task — only `npx vitest run tests/integration/titles.test.ts` as shown below.**
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 // tests/integration/titles.test.ts
@@ -390,12 +390,12 @@ describe("createTitleSetForIdeaOrTopic", () => {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `npx vitest run tests/integration/titles.test.ts`
 Expected: FAIL — `Cannot find export 'createTitleSetForIdeaOrTopic' from '@/server/titles'` (or, if no DB is reachable, a DB-connectivity error at `beforeEach` instead — either is an acceptable "red" state given the environment constraint).
 
-- [ ] **Step 3: Add `createTitleSetForIdeaOrTopic` and `regenerateTitleSet` to `src/server/titles.ts`**
+- [x] **Step 3: Add `createTitleSetForIdeaOrTopic` and `regenerateTitleSet` to `src/server/titles.ts`**
 
 Add these two imports at the top of the file:
 
@@ -460,17 +460,17 @@ export async function regenerateTitleSet(titleSetId: string, youtubeApiKey: stri
 }
 ```
 
-- [ ] **Step 4: Run the test to verify it passes**
+- [x] **Step 4: Run the test to verify it passes**
 
 Run: `npx vitest run tests/integration/titles.test.ts`
 Expected: PASS (2 tests), if a live `DATABASE_URL` is reachable and safe to use. If not, confirm the failure is a database-connectivity error, not a code/import error.
 
-- [ ] **Step 5: Run `npx tsc --noEmit` regardless of DB availability**
+- [x] **Step 5: Run `npx tsc --noEmit` regardless of DB availability**
 
 Run: `npx tsc --noEmit`
 Expected: no errors.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/server/titles.ts tests/integration/titles.test.ts
@@ -484,7 +484,7 @@ git commit -m "feat: add title set generation and regeneration orchestration"
 **Files:**
 - Create: `src/app/api/titles/route.ts`
 
-- [ ] **Step 1: Create the route**
+- [x] **Step 1: Create the route**
 
 ```ts
 // src/app/api/titles/route.ts
@@ -565,17 +565,17 @@ export async function GET(request: Request) {
 
 Note: the `decrypt()` call is inside the same try/catch as the `createTitleSetForIdeaOrTopic` call — not before it — per the established fix pattern from Phase 2's review (a bad/corrupted encrypted key must not produce an unhandled 500).
 
-- [ ] **Step 2: Type-check**
+- [x] **Step 2: Type-check**
 
 Run: `npx tsc --noEmit`
 Expected: no errors.
 
-- [ ] **Step 3: Build**
+- [x] **Step 3: Build**
 
 Run: `npm run build`
 Expected: succeeds, `/api/titles` listed among the routes.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/app/api/titles/route.ts
@@ -589,7 +589,7 @@ git commit -m "feat: add POST/GET /api/titles routes"
 **Files:**
 - Create: `src/app/api/titles/[id]/route.ts`
 
-- [ ] **Step 1: Create the route**
+- [x] **Step 1: Create the route**
 
 ```ts
 // src/app/api/titles/[id]/route.ts
@@ -631,17 +631,17 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
 Note the ownership check uses a nested relation filter (`project: { userId: session.user.id }`), matching the exact pattern established in `/api/scripts/[id]/route.ts`. The `titleSet.titles.includes(selectedTitle)` check enforces the spec's "select from the 8 generated titles only, no free text" rule server-side, not just in the UI.
 
-- [ ] **Step 2: Type-check**
+- [x] **Step 2: Type-check**
 
 Run: `npx tsc --noEmit`
 Expected: no errors.
 
-- [ ] **Step 3: Build**
+- [x] **Step 3: Build**
 
 Run: `npm run build`
 Expected: succeeds, `/api/titles/[id]` listed among the routes.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add "src/app/api/titles/[id]/route.ts"
@@ -655,7 +655,7 @@ git commit -m "feat: add PATCH /api/titles/:id route for selecting a title"
 **Files:**
 - Create: `src/app/api/titles/[id]/regenerate/route.ts`
 
-- [ ] **Step 1: Create the route**
+- [x] **Step 1: Create the route**
 
 ```ts
 // src/app/api/titles/[id]/regenerate/route.ts
@@ -695,17 +695,17 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
 Note: the ownership/existence check (`prisma.titleSet.findFirst` → 404) happens **before** the try/catch wrapping the actual regeneration call, so a missing/foreign title set returns 404, not a misleading 502 — the same ordering fixed into Script Writer's regenerate route during its review. Don't reorder this.
 
-- [ ] **Step 2: Type-check**
+- [x] **Step 2: Type-check**
 
 Run: `npx tsc --noEmit`
 Expected: no errors.
 
-- [ ] **Step 3: Build**
+- [x] **Step 3: Build**
 
 Run: `npm run build`
 Expected: succeeds, `/api/titles/[id]/regenerate` listed among the routes.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add "src/app/api/titles/[id]/regenerate/route.ts"
@@ -719,7 +719,7 @@ git commit -m "feat: add POST /api/titles/:id/regenerate route"
 **Files:**
 - Modify: `src/app/(app)/seo-titles/page.tsx`
 
-- [ ] **Step 1: Replace the placeholder with the real page**
+- [x] **Step 1: Replace the placeholder with the real page**
 
 Replace the entire contents of `src/app/(app)/seo-titles/page.tsx` with:
 
@@ -930,17 +930,17 @@ export default function SeoTitlesPage() {
 }
 ```
 
-- [ ] **Step 2: Type-check**
+- [x] **Step 2: Type-check**
 
 Run: `npx tsc --noEmit`
 Expected: no errors.
 
-- [ ] **Step 3: Build**
+- [x] **Step 3: Build**
 
 Run: `npm run build`
 Expected: succeeds, `/seo-titles` still listed among the routes (now dynamic, not a static placeholder).
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add "src/app/(app)/seo-titles/page.tsx"
@@ -951,27 +951,27 @@ git commit -m "feat: replace SEO Titles placeholder with real generation UI"
 
 ## Task 8: Final Verification
 
-- [ ] **Step 1: Run the unit test suite (named files only, never the bare `npm test`)**
+- [x] **Step 1: Run the unit test suite (named files only, never the bare `npm test`)**
 
 Run: `npx vitest run tests/unit`
 Expected: all unit test files pass, including the 9 new tests in `tests/unit/titles.test.ts` alongside every prior phase's unit tests.
 
-- [ ] **Step 2: Attempt the integration test for this phase only**
+- [x] **Step 2: Attempt the integration test for this phase only**
 
 Run: `npx vitest run tests/integration/titles.test.ts`
 Expected: PASS (2 tests) if a live, safe-to-use `DATABASE_URL` is available; otherwise a DB-connectivity error, which is an accepted outcome — do NOT run any other integration test file or the bare `npm test` to "double check".
 
-- [ ] **Step 3: Run a full production build**
+- [x] **Step 3: Run a full production build**
 
 Run: `npm run build`
 Expected: succeeds, with `/api/titles`, `/api/titles/[id]`, `/api/titles/[id]/regenerate`, and `/seo-titles` present among the routes alongside everything from prior phases.
 
-- [ ] **Step 4: Run `npx tsc --noEmit` across the whole project**
+- [x] **Step 4: Run `npx tsc --noEmit` across the whole project**
 
 Run: `npx tsc --noEmit`
 Expected: no errors anywhere in the project.
 
-- [ ] **Step 5: Commit any final fixes**
+- [x] **Step 5: Commit any final fixes**
 
 ```bash
 git add -A
