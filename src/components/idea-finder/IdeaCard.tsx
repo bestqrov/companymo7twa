@@ -17,6 +17,7 @@ const IDEA_ACTIONS = [
   { icon: "🔍", label: "Keyword Research", href: "/keyword-research" },
   { icon: "🏷️", label: "Description & Tags", href: "/description-tags" },
   { icon: "🖼️", label: "Thumbnails", href: "/thumbnails" },
+  { icon: "📱", label: "Multi-Platform Shorts", href: "/multi-platform-shorts" },
 ];
 
 function scoreColor(score: number): string {
