@@ -1,6 +1,6 @@
 # ArwaTube AI Engine — Multi-Platform Repurposing Engine — Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Build the Multi-Platform Repurposing Engine: a `PlatformVariant` Prisma model (one row per platform per idea/topic), business logic to generate all 4 platform variants (TikTok, YouTube Shorts, Instagram Reels, Facebook Reels) in one Claude call plus regenerate any single platform independently, an Instagram cover image via Higgsfield, four API routes, and a real `/multi-platform-shorts` page replacing its Phase 1 placeholder.
 
@@ -50,7 +50,7 @@ tests/
 **Files:**
 - Modify: `prisma/schema.prisma`
 
-- [ ] **Step 1: Add the `RepurposePlatform` enum**
+- [x] **Step 1: Add the `RepurposePlatform` enum**
 
 Add this enum near the other enums at the top of the file (after `ScriptTone`):
 
@@ -63,7 +63,7 @@ enum RepurposePlatform {
 }
 ```
 
-- [ ] **Step 2: Add the `PlatformVariant` model**
+- [x] **Step 2: Add the `PlatformVariant` model**
 
 Add this model anywhere at the top level (e.g. after the existing `DescriptionTagSet` model):
 
@@ -92,7 +92,7 @@ model PlatformVariant {
 
 Note this is deliberately **not** a nullable-unique `ideaId` like `TitleSet`/`DescriptionTagSet` — `ideaId` alone is not unique, only the combination `(ideaId, platform)` is, since up to 4 rows (one per platform) share the same `ideaId`.
 
-- [ ] **Step 3: Add the relation fields on `Project` and `Idea`**
+- [x] **Step 3: Add the relation fields on `Project` and `Idea`**
 
 Find the `Project` model and add a `platformVariants PlatformVariant[]` line alongside its other relation fields (next to `descriptionTagSets DescriptionTagSet[]`):
 
@@ -110,13 +110,13 @@ Find the `Idea` model and add a `platformVariants PlatformVariant[]` line (plura
   platformVariants  PlatformVariant[]
 ```
 
-- [ ] **Step 4: Format and regenerate**
+- [x] **Step 4: Format and regenerate**
 
 Run: `npx prisma format`
 Run: `npx prisma generate`
 Expected: `Generated Prisma Client` success message, no errors. This does not require a live database connection.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add prisma/schema.prisma
@@ -131,7 +131,7 @@ git commit -m "feat: add RepurposePlatform enum and PlatformVariant model to Pri
 - Create: `src/server/platformVariants.ts`
 - Test: `tests/unit/platformVariants.test.ts`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 // tests/unit/platformVariants.test.ts
@@ -307,12 +307,12 @@ describe("parseSinglePlatformVariantResponse", () => {
 });
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `npx vitest run tests/unit/platformVariants.test.ts`
 Expected: FAIL — `Cannot find module '@/server/platformVariants'`
 
-- [ ] **Step 3: Create `src/server/platformVariants.ts`** (full file for this task — Task 3 will extend it)
+- [x] **Step 3: Create `src/server/platformVariants.ts`** (full file for this task — Task 3 will extend it)
 
 ```ts
 export type Platform = "TIKTOK" | "YOUTUBE_SHORTS" | "INSTAGRAM_REELS" | "FACEBOOK_REELS";
@@ -485,12 +485,12 @@ export function parseSinglePlatformVariantResponse(raw: string, platform: Platfo
 }
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `npx vitest run tests/unit/platformVariants.test.ts`
 Expected: PASS (21 tests)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/server/platformVariants.ts tests/unit/platformVariants.test.ts
@@ -507,7 +507,7 @@ git commit -m "feat: add platform variants prompt-building and response-parsing 
 
 This requires a live Postgres database to actually run. If no `DATABASE_URL` is reachable, write the code and test exactly as specified, verify via `npx tsc --noEmit`, and note in your report that live execution is deferred. **Do not run the bare `npm test` command in this task — only `npx vitest run tests/integration/platformVariants.test.ts` as shown below.**
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 // tests/integration/platformVariants.test.ts
@@ -679,12 +679,12 @@ describe("createPlatformVariantsForIdeaOrTopic", () => {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `npx vitest run tests/integration/platformVariants.test.ts`
 Expected: FAIL — `Cannot find export 'createPlatformVariantsForIdeaOrTopic' from '@/server/platformVariants'` (or, if no DB is reachable, a DB-connectivity error at `beforeEach` instead — either is an acceptable "red" state given the environment constraint).
 
-- [ ] **Step 3: Add `fetchWorkflowContext`, `createPlatformVariantsForIdeaOrTopic`, and `regeneratePlatformVariant` to `src/server/platformVariants.ts`**
+- [x] **Step 3: Add `fetchWorkflowContext`, `createPlatformVariantsForIdeaOrTopic`, and `regeneratePlatformVariant` to `src/server/platformVariants.ts`**
 
 Add these imports at the top of the file:
 
@@ -792,17 +792,17 @@ export async function regeneratePlatformVariant(variantId: string) {
 }
 ```
 
-- [ ] **Step 4: Run the test to verify it passes**
+- [x] **Step 4: Run the test to verify it passes**
 
 Run: `npx vitest run tests/integration/platformVariants.test.ts`
 Expected: PASS (3 tests), if a live `DATABASE_URL` is reachable and safe to use. If not, confirm the failure is a database-connectivity error, not a code/import error.
 
-- [ ] **Step 5: Run `npx tsc --noEmit` regardless of DB availability**
+- [x] **Step 5: Run `npx tsc --noEmit` regardless of DB availability**
 
 Run: `npx tsc --noEmit`
 Expected: no errors.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/server/platformVariants.ts tests/integration/platformVariants.test.ts
@@ -816,7 +816,7 @@ git commit -m "feat: add platform variants generation and regeneration orchestra
 **Files:**
 - Create: `src/app/api/platform-variants/route.ts`
 
-- [ ] **Step 1: Create the route**
+- [x] **Step 1: Create the route**
 
 ```ts
 // src/app/api/platform-variants/route.ts
@@ -890,17 +890,17 @@ export async function GET(request: Request) {
 }
 ```
 
-- [ ] **Step 2: Type-check**
+- [x] **Step 2: Type-check**
 
 Run: `npx tsc --noEmit`
 Expected: no errors.
 
-- [ ] **Step 3: Build**
+- [x] **Step 3: Build**
 
 Run: `npm run build`
 Expected: succeeds, `/api/platform-variants` listed among the routes.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/app/api/platform-variants/route.ts
@@ -914,7 +914,7 @@ git commit -m "feat: add POST/GET /api/platform-variants routes"
 **Files:**
 - Create: `src/app/api/platform-variants/[id]/route.ts`
 
-- [ ] **Step 1: Create the route**
+- [x] **Step 1: Create the route**
 
 ```ts
 // src/app/api/platform-variants/[id]/route.ts
@@ -964,17 +964,17 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
 Note: only `hook`, `caption`, and `hashtags` are editable through this route — `coverImagePrompt`/`coverImageUrl` are only ever produced by generation/regeneration, never hand-edited, per the design spec.
 
-- [ ] **Step 2: Type-check**
+- [x] **Step 2: Type-check**
 
 Run: `npx tsc --noEmit`
 Expected: no errors.
 
-- [ ] **Step 3: Build**
+- [x] **Step 3: Build**
 
 Run: `npm run build`
 Expected: succeeds, `/api/platform-variants/[id]` listed among the routes.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add "src/app/api/platform-variants/[id]/route.ts"
@@ -988,7 +988,7 @@ git commit -m "feat: add PATCH /api/platform-variants/:id route for editing fiel
 **Files:**
 - Create: `src/app/api/platform-variants/[id]/regenerate/route.ts`
 
-- [ ] **Step 1: Create the route**
+- [x] **Step 1: Create the route**
 
 ```ts
 // src/app/api/platform-variants/[id]/regenerate/route.ts
@@ -1023,17 +1023,17 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
 Note: the ownership/existence check happens **before** the try/catch wrapping the actual regeneration call, so a missing/foreign variant returns 404, not a misleading 502 — the same ordering used in every prior regenerate route. Don't reorder this.
 
-- [ ] **Step 2: Type-check**
+- [x] **Step 2: Type-check**
 
 Run: `npx tsc --noEmit`
 Expected: no errors.
 
-- [ ] **Step 3: Build**
+- [x] **Step 3: Build**
 
 Run: `npm run build`
 Expected: succeeds, `/api/platform-variants/[id]/regenerate` listed among the routes.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add "src/app/api/platform-variants/[id]/regenerate/route.ts"
@@ -1048,7 +1048,7 @@ git commit -m "feat: add POST /api/platform-variants/:id/regenerate route"
 - Create: `src/components/platformVariants/PlatformVariantCard.tsx`
 - Modify: `src/app/(app)/multi-platform-shorts/page.tsx`
 
-- [ ] **Step 1: Create the `PlatformVariantCard` component**
+- [x] **Step 1: Create the `PlatformVariantCard` component**
 
 This component owns all local editing state for one platform's row, including a `revision` counter that only increments on a successful regenerate — never on a plain field save — so hashtags-chip-list remounts (needed to pick up regenerated hashtags) never fire from an unrelated hook/caption save. `hook`/`caption` drafts resync via `useEffect` on the primitive string prop (safe: strings compare by value, so an unrelated field's save — which doesn't change this string's content — never retriggers it), the same pattern already proven safe in `ScriptSectionCard`.
 
@@ -1168,7 +1168,7 @@ export function PlatformVariantCard({
 }
 ```
 
-- [ ] **Step 2: Replace the placeholder page**
+- [x] **Step 2: Replace the placeholder page**
 
 Replace the entire contents of `src/app/(app)/multi-platform-shorts/page.tsx` with:
 
@@ -1338,17 +1338,17 @@ export default function MultiPlatformShortsPage() {
 
 Note: the `PlatformVariant` interface in `PlatformVariantCard.tsx` doesn't declare `ideaId`, but the initial-load filter in the page casts to read it off the raw API response (`data.platformVariants` rows do include `ideaId` from Prisma) — this keeps the card's own prop type minimal (it never needs `ideaId` itself) while the page still filters correctly by it.
 
-- [ ] **Step 3: Type-check**
+- [x] **Step 3: Type-check**
 
 Run: `npx tsc --noEmit`
 Expected: no errors.
 
-- [ ] **Step 4: Build**
+- [x] **Step 4: Build**
 
 Run: `npm run build`
 Expected: succeeds, `/multi-platform-shorts` still listed among the routes (now dynamic, not a static placeholder).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/components/platformVariants/PlatformVariantCard.tsx "src/app/(app)/multi-platform-shorts/page.tsx"
@@ -1359,27 +1359,27 @@ git commit -m "feat: replace Multi-Platform Shorts placeholder with real generat
 
 ## Task 8: Final Verification
 
-- [ ] **Step 1: Run the unit test suite (named files only, never the bare `npm test`)**
+- [x] **Step 1: Run the unit test suite (named files only, never the bare `npm test`)**
 
 Run: `npx vitest run tests/unit`
 Expected: all unit test files pass, including the 21 new tests in `tests/unit/platformVariants.test.ts` alongside every prior phase's unit tests.
 
-- [ ] **Step 2: Attempt the integration test for this phase only**
+- [x] **Step 2: Attempt the integration test for this phase only**
 
 Run: `npx vitest run tests/integration/platformVariants.test.ts`
 Expected: PASS (3 tests) if a live, safe-to-use `DATABASE_URL` is available; otherwise a DB-connectivity error, which is an accepted outcome — do NOT run any other integration test file or the bare `npm test` to "double check".
 
-- [ ] **Step 3: Run a full production build**
+- [x] **Step 3: Run a full production build**
 
 Run: `npm run build`
 Expected: succeeds, with `/api/platform-variants`, `/api/platform-variants/[id]`, `/api/platform-variants/[id]/regenerate`, and `/multi-platform-shorts` present among the routes alongside everything from prior phases.
 
-- [ ] **Step 4: Run `npx tsc --noEmit` across the whole project**
+- [x] **Step 4: Run `npx tsc --noEmit` across the whole project**
 
 Run: `npx tsc --noEmit`
 Expected: no errors anywhere in the project.
 
-- [ ] **Step 5: Commit any final fixes**
+- [x] **Step 5: Commit any final fixes**
 
 ```bash
 git add -A
