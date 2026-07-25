@@ -5,27 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useAppStore } from "@/store/useAppStore";
 import { useWorkflowStore } from "@/store/useWorkflowStore";
 import { EditableChipList } from "@/components/descriptionTags/EditableChipList";
-
-// Duplicated from src/server/descriptionTags.ts's YOUTUBE_CATEGORIES: that module
-// imports `@/lib/prisma`, which is server-only and cannot be imported into this
-// client component.
-const YOUTUBE_CATEGORIES = [
-  "Film & Animation",
-  "Autos & Vehicles",
-  "Music",
-  "Pets & Animals",
-  "Sports",
-  "Travel & Events",
-  "Gaming",
-  "People & Blogs",
-  "Comedy",
-  "Entertainment",
-  "News & Politics",
-  "Howto & Style",
-  "Education",
-  "Science & Technology",
-  "Nonprofits & Activism",
-];
+import { YOUTUBE_CATEGORIES } from "@/lib/youtubeCategories";
 
 interface DescriptionTagSet {
   id: string;

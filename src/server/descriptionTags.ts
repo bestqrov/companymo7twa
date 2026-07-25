@@ -1,23 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { getLlmClient } from "@/lib/llm";
 
-export const YOUTUBE_CATEGORIES = [
-  "Film & Animation",
-  "Autos & Vehicles",
-  "Music",
-  "Pets & Animals",
-  "Sports",
-  "Travel & Events",
-  "Gaming",
-  "People & Blogs",
-  "Comedy",
-  "Entertainment",
-  "News & Politics",
-  "Howto & Style",
-  "Education",
-  "Science & Technology",
-  "Nonprofits & Activism",
-] as const;
+export { YOUTUBE_CATEGORIES } from "@/lib/youtubeCategories";
+import { YOUTUBE_CATEGORIES } from "@/lib/youtubeCategories";
 
 export interface DescriptionTagsGenerationInput {
   topic: string;

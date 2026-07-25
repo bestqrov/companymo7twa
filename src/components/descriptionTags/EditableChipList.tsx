@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export function EditableChipList({
   label,
@@ -11,16 +11,25 @@ export function EditableChipList({
   chips: string[];
   onSave: (chips: string[]) => void;
 }) {
+  const [localChips, setLocalChips] = useState(chips);
   const [draft, setDraft] = useState("");
 
-  function removeChip(chip: string) {
-    onSave(chips.filter((c) => c !== chip));
+  useEffect(() => {
+    setLocalChips(chips);
+  }, [chips]);
+
+  function removeChip(index: number) {
+    const next = localChips.filter((_, i) => i !== index);
+    setLocalChips(next);
+    onSave(next);
   }
 
   function addChip() {
     const trimmed = draft.trim();
-    if (!trimmed || chips.includes(trimmed)) return;
-    onSave([...chips, trimmed]);
+    if (!trimmed || localChips.includes(trimmed)) return;
+    const next = [...localChips, trimmed];
+    setLocalChips(next);
+    onSave(next);
     setDraft("");
   }
 
@@ -28,13 +37,13 @@ export function EditableChipList({
     <div>
       <p className="text-[10px] uppercase tracking-wide text-zinc-500">{label}</p>
       <div className="mt-2 flex flex-wrap gap-2">
-        {chips.map((chip) => (
+        {localChips.map((chip, index) => (
           <span
-            key={chip}
+            key={index}
             className="flex items-center gap-1 rounded-full border border-surface-border bg-surface-raised px-3 py-1 text-xs text-zinc-300"
           >
             {chip}
-            <button onClick={() => removeChip(chip)} className="text-zinc-500 hover:text-red-400">
+            <button type="button" onClick={() => removeChip(index)} className="text-zinc-500 hover:text-red-400">
               ×
             </button>
           </span>
