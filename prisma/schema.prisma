@@ -85,12 +85,13 @@ model Project {
   name     String
   isActive Boolean @default(false)
 
-  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  settings   ProjectSettings?
-  ideas      Idea[]
-  thumbnails Thumbnail[]
-  scripts    Script[]
-  titleSets  TitleSet[]
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  settings           ProjectSettings?
+  ideas              Idea[]
+  thumbnails         Thumbnail[]
+  scripts            Script[]
+  titleSets          TitleSet[]
+  descriptionTagSets DescriptionTagSet[]
 
   createdAt DateTime @default(now())
 }
@@ -119,9 +120,10 @@ model Idea {
   viralityScore Int
   scoreSource   ScoreSource
 
-  thumbnails Thumbnail[]
-  script     Script?
-  titleSet   TitleSet?
+  thumbnails        Thumbnail[]
+  script            Script?
+  titleSet          TitleSet?
+  descriptionTagSet DescriptionTagSet?
 
   createdAt DateTime @default(now())
 }
@@ -173,6 +175,24 @@ model TitleSet {
   titles        String[]
   keywords      String[]
   selectedTitle String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DescriptionTagSet {
+  id        String  @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  ideaId    String? @unique
+  idea      Idea?   @relation(fields: [ideaId], references: [id], onDelete: SetNull)
+
+  topic         String
+  description   String
+  tags          String[]
+  hashtags      String[]
+  category      String
+  pinnedComment String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
