@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createPlatformVariantsForIdeaOrTopic } from "@/server/platformVariants";
+import { resolveLanguageName } from "@/lib/language";
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
@@ -15,7 +16,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "projectId and topic are required" }, { status: 400 });
   }
 
-  const project = await prisma.project.findFirst({ where: { id: projectId, userId: session.user.id } });
+  const project = await prisma.project.findFirst({
+    where: { id: projectId, userId: session.user.id },
+    include: { settings: true },
+  });
   if (!project) {
     return NextResponse.json({ error: "Project not found" }, { status: 404 });
   }
@@ -33,7 +37,8 @@ export async function POST(request: Request) {
 
   let result;
   try {
-    result = await createPlatformVariantsForIdeaOrTopic(projectId, resolvedIdeaId, topic);
+    const targetLanguage = resolveLanguageName(project.settings?.targetLanguage);
+    result = await createPlatformVariantsForIdeaOrTopic(projectId, resolvedIdeaId, topic, targetLanguage);
   } catch (error) {
     console.error("Failed to generate platform variants:", error);
     return NextResponse.json({ error: "Failed to generate shorts. Please try again." }, { status: 502 });

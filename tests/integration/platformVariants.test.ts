@@ -56,7 +56,7 @@ describe("createPlatformVariantsForIdeaOrTopic", () => {
       data: { userId: user.id, name: "Test Channel", isActive: true, settings: { create: {} } },
     });
 
-    const result = await createPlatformVariantsForIdeaOrTopic(project.id, null, "Home coffee brewing mistakes");
+    const result = await createPlatformVariantsForIdeaOrTopic(project.id, null, "Home coffee brewing mistakes", "English");
 
     expect(result.created).toBe(true);
     expect(result.platformVariants).toHaveLength(4);
@@ -93,8 +93,8 @@ describe("createPlatformVariantsForIdeaOrTopic", () => {
       },
     });
 
-    const first = await createPlatformVariantsForIdeaOrTopic(project.id, idea.id, "5 Coffee Mistakes");
-    const second = await createPlatformVariantsForIdeaOrTopic(project.id, idea.id, "5 Coffee Mistakes");
+    const first = await createPlatformVariantsForIdeaOrTopic(project.id, idea.id, "5 Coffee Mistakes", "English");
+    const second = await createPlatformVariantsForIdeaOrTopic(project.id, idea.id, "5 Coffee Mistakes", "English");
 
     expect(first.created).toBe(true);
     expect(second.created).toBe(false);
@@ -156,7 +156,7 @@ describe("createPlatformVariantsForIdeaOrTopic", () => {
       },
     });
 
-    await createPlatformVariantsForIdeaOrTopic(project.id, idea.id, "5 Coffee Mistakes");
+    await createPlatformVariantsForIdeaOrTopic(project.id, idea.id, "5 Coffee Mistakes", "English");
 
     expect(generateText).toHaveBeenCalledTimes(1);
     const promptSent = generateText.mock.calls[0][0] as string;
@@ -164,5 +164,17 @@ describe("createPlatformVariantsForIdeaOrTopic", () => {
     expect(promptSent).toContain("Most people over-extract their espresso");
     expect(promptSent).toContain("Stop Ruining Your Coffee");
     expect(promptSent).toContain("#coffeehacks");
+  });
+
+  it("passes the target language into the prompt sent to the LLM", async () => {
+    const user = await prisma.user.create({ data: { email: "creator-lang@example.com", name: "Creator Lang" } });
+    const project = await prisma.project.create({
+      data: { userId: user.id, name: "Test Channel Lang", isActive: true, settings: { create: {} } },
+    });
+
+    await createPlatformVariantsForIdeaOrTopic(project.id, null, "Home coffee brewing mistakes", "French");
+
+    const briefPromptCalls = generateText.mock.calls.map((call) => call[0] as string);
+    expect(briefPromptCalls.some((p) => p.includes("French"))).toBe(true);
   });
 });

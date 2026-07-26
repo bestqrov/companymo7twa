@@ -22,13 +22,14 @@ const validAllPlatforms = {
 
 describe("buildPlatformVariantsPrompt", () => {
   it("includes the topic", () => {
-    const prompt = buildPlatformVariantsPrompt({ topic: "Home coffee brewing mistakes" });
+    const prompt = buildPlatformVariantsPrompt({ topic: "Home coffee brewing mistakes", targetLanguage: "English" });
     expect(prompt).toContain("Home coffee brewing mistakes");
   });
 
   it("includes script context when provided", () => {
     const prompt = buildPlatformVariantsPrompt({
       topic: "Home coffee brewing mistakes",
+      targetLanguage: "English",
       scriptHook: "Your coffee is probably wrong",
       scriptMainContent: "Most people over-extract their espresso...",
     });
@@ -39,6 +40,7 @@ describe("buildPlatformVariantsPrompt", () => {
   it("includes the selected title when provided", () => {
     const prompt = buildPlatformVariantsPrompt({
       topic: "Home coffee brewing mistakes",
+      targetLanguage: "English",
       selectedTitle: "5 Coffee Brewing Mistakes You're Making",
     });
     expect(prompt).toContain("5 Coffee Brewing Mistakes You're Making");
@@ -47,6 +49,7 @@ describe("buildPlatformVariantsPrompt", () => {
   it("includes hashtags when provided", () => {
     const prompt = buildPlatformVariantsPrompt({
       topic: "Home coffee brewing mistakes",
+      targetLanguage: "English",
       hashtags: ["#coffee", "#espresso"],
     });
     expect(prompt).toContain("#coffee");
@@ -54,18 +57,23 @@ describe("buildPlatformVariantsPrompt", () => {
   });
 
   it("omits all context sections when not provided", () => {
-    const prompt = buildPlatformVariantsPrompt({ topic: "Home coffee brewing mistakes" });
+    const prompt = buildPlatformVariantsPrompt({ topic: "Home coffee brewing mistakes", targetLanguage: "English" });
     expect(prompt).not.toContain("existing long-form script");
     expect(prompt).not.toContain("already chosen this title");
     expect(prompt).not.toContain("already researched for this video");
   });
 
   it("includes distinct anti-duplication tone instructions per platform", () => {
-    const prompt = buildPlatformVariantsPrompt({ topic: "Home coffee brewing mistakes" });
+    const prompt = buildPlatformVariantsPrompt({ topic: "Home coffee brewing mistakes", targetLanguage: "English" });
     expect(prompt).toContain("pattern-interrupt");
     expect(prompt).toContain("value proposition");
     expect(prompt).toContain("curiosity-driven");
     expect(prompt).toContain("question-based");
+  });
+
+  it("includes a language instruction for the given target language", () => {
+    const prompt = buildPlatformVariantsPrompt({ topic: "Home coffee brewing mistakes", targetLanguage: "Arabic" });
+    expect(prompt).toContain("Arabic");
   });
 });
 
@@ -112,12 +120,12 @@ describe("parsePlatformVariantsResponse", () => {
 
 describe("buildSinglePlatformVariantPrompt", () => {
   it("includes the topic", () => {
-    const prompt = buildSinglePlatformVariantPrompt("TIKTOK", { topic: "Home coffee brewing mistakes" });
+    const prompt = buildSinglePlatformVariantPrompt("TIKTOK", { topic: "Home coffee brewing mistakes", targetLanguage: "English" });
     expect(prompt).toContain("Home coffee brewing mistakes");
   });
 
   it("includes only that platform's tone instruction", () => {
-    const tiktokPrompt = buildSinglePlatformVariantPrompt("TIKTOK", { topic: "Home coffee brewing mistakes" });
+    const tiktokPrompt = buildSinglePlatformVariantPrompt("TIKTOK", { topic: "Home coffee brewing mistakes", targetLanguage: "English" });
     expect(tiktokPrompt).toContain("pattern-interrupt");
     expect(tiktokPrompt).not.toContain("value proposition");
     expect(tiktokPrompt).not.toContain("curiosity-driven");
@@ -125,8 +133,8 @@ describe("buildSinglePlatformVariantPrompt", () => {
   });
 
   it("requests coverImagePrompt only for INSTAGRAM_REELS", () => {
-    const instagramPrompt = buildSinglePlatformVariantPrompt("INSTAGRAM_REELS", { topic: "Home coffee brewing mistakes" });
-    const tiktokPrompt = buildSinglePlatformVariantPrompt("TIKTOK", { topic: "Home coffee brewing mistakes" });
+    const instagramPrompt = buildSinglePlatformVariantPrompt("INSTAGRAM_REELS", { topic: "Home coffee brewing mistakes", targetLanguage: "English" });
+    const tiktokPrompt = buildSinglePlatformVariantPrompt("TIKTOK", { topic: "Home coffee brewing mistakes", targetLanguage: "English" });
     expect(instagramPrompt).toContain("coverImagePrompt");
     expect(tiktokPrompt).not.toContain("coverImagePrompt");
   });
@@ -134,11 +142,17 @@ describe("buildSinglePlatformVariantPrompt", () => {
   it("includes context when provided", () => {
     const prompt = buildSinglePlatformVariantPrompt("FACEBOOK_REELS", {
       topic: "Home coffee brewing mistakes",
+      targetLanguage: "English",
       selectedTitle: "5 Coffee Brewing Mistakes You're Making",
       hashtags: ["#coffee"],
     });
     expect(prompt).toContain("5 Coffee Brewing Mistakes You're Making");
     expect(prompt).toContain("#coffee");
+  });
+
+  it("includes a language instruction for the given target language", () => {
+    const prompt = buildSinglePlatformVariantPrompt("TIKTOK", { topic: "Home coffee brewing mistakes", targetLanguage: "French" });
+    expect(prompt).toContain("French");
   });
 });
 

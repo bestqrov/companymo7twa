@@ -51,7 +51,9 @@ function buildContextBlock(input: { topic: string } & WorkflowContext): string {
   return `${scriptBlock}${titleBlock}${hashtagsBlock}`;
 }
 
-export function buildPlatformVariantsPrompt(input: { topic: string } & WorkflowContext): string {
+export function buildPlatformVariantsPrompt(
+  input: { topic: string; targetLanguage: string } & WorkflowContext
+): string {
   const contextBlock = buildContextBlock(input);
 
   return `You are a short-form content strategist repurposing a long-form video concept about:
@@ -65,6 +67,8 @@ Generate a distinct short-form variant for EACH of these 4 platforms. Each platf
 - ${PLATFORM_TONE.FACEBOOK_REELS}
 
 For each platform, provide a "hook" (the opening line, first 5 seconds), a "caption" (the post caption/description), and "hashtags" (a small relevant set). For Instagram Reels ONLY, also provide a "coverImagePrompt": a text-to-image prompt describing a still cover frame for the reel.
+
+Write the hook, caption, and hashtags for every platform in ${input.targetLanguage}. The "coverImagePrompt" for Instagram Reels must stay in English regardless, since it's an image-generation instruction, not visible text.
 
 Respond with ONLY a JSON object shaped like:
 {
@@ -142,11 +146,14 @@ export function parsePlatformVariantsResponse(raw: string): GeneratedPlatformVar
   };
 }
 
-export function buildSinglePlatformVariantPrompt(platform: Platform, input: { topic: string } & WorkflowContext): string {
+export function buildSinglePlatformVariantPrompt(
+  platform: Platform,
+  input: { topic: string; targetLanguage: string } & WorkflowContext
+): string {
   const contextBlock = buildContextBlock(input);
   const coverImageInstruction =
     platform === "INSTAGRAM_REELS"
-      ? ` Also provide a "coverImagePrompt": a text-to-image prompt describing a still cover frame for the reel.`
+      ? ` Also provide a "coverImagePrompt": a text-to-image prompt describing a still cover frame for the reel (keep this in English regardless of the target language below, since it's an image-generation instruction, not visible text).`
       : "";
   const responseShape =
     platform === "INSTAGRAM_REELS"
@@ -159,6 +166,8 @@ export function buildSinglePlatformVariantPrompt(platform: Platform, input: { to
 Generate a short-form variant for this platform only: ${PLATFORM_TONE[platform]}
 
 Provide a "hook" (the opening line, first 5 seconds), a "caption" (the post caption/description), and "hashtags" (a small relevant set).${coverImageInstruction}
+
+Write the hook, caption, and hashtags in ${input.targetLanguage}.
 
 Respond with ONLY a JSON object shaped like:
 ${responseShape}
@@ -192,7 +201,12 @@ export async function fetchWorkflowContext(ideaId: string | null): Promise<Workf
   };
 }
 
-export async function createPlatformVariantsForIdeaOrTopic(projectId: string, ideaId: string | null, topic: string) {
+export async function createPlatformVariantsForIdeaOrTopic(
+  projectId: string,
+  ideaId: string | null,
+  topic: string,
+  targetLanguage: string
+) {
   if (ideaId) {
     const existing = await prisma.platformVariant.findMany({ where: { ideaId } });
     if (existing.length > 0) {
@@ -202,7 +216,7 @@ export async function createPlatformVariantsForIdeaOrTopic(projectId: string, id
 
   const context = await fetchWorkflowContext(ideaId);
   const llm = getLlmClient();
-  const raw = await llm.generateText(buildPlatformVariantsPrompt({ topic, ...context }));
+  const raw = await llm.generateText(buildPlatformVariantsPrompt({ topic, targetLanguage, ...context }));
   const generated = parsePlatformVariantsResponse(raw);
 
   const { url: coverImageUrl } = await generateImage(generated.instagramReels.coverImagePrompt);
@@ -235,13 +249,13 @@ export async function createPlatformVariantsForIdeaOrTopic(projectId: string, id
   return { platformVariants, created: true };
 }
 
-export async function regeneratePlatformVariant(variantId: string) {
+export async function regeneratePlatformVariant(variantId: string, targetLanguage: string) {
   const existing = await prisma.platformVariant.findUniqueOrThrow({ where: { id: variantId } });
 
   const context = await fetchWorkflowContext(existing.ideaId);
   const llm = getLlmClient();
   const raw = await llm.generateText(
-    buildSinglePlatformVariantPrompt(existing.platform, { topic: existing.topic, ...context })
+    buildSinglePlatformVariantPrompt(existing.platform, { topic: existing.topic, targetLanguage, ...context })
   );
   const generated = parseSinglePlatformVariantResponse(raw, existing.platform);
 
