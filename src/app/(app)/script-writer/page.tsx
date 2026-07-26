@@ -5,11 +5,19 @@ import { useSearchParams } from "next/navigation";
 import { useAppStore } from "@/store/useAppStore";
 import { useWorkflowStore } from "@/store/useWorkflowStore";
 import { ScriptSectionCard, type Script, type ScriptSectionKey } from "@/components/scripts/ScriptSectionCard";
+import { useT } from "@/lib/i18n/useTranslation";
 
 const TONES: Script["tone"][] = ["ENGAGING", "EDUCATIONAL", "STORYTELLING", "FAST_PACED"];
 const SECTION_ORDER: ScriptSectionKey[] = ["hook", "intro", "mainContent", "cta", "ending"];
+const TONE_KEYS: Record<Script["tone"], string> = {
+  ENGAGING: "scriptWriter.toneEngaging",
+  EDUCATIONAL: "scriptWriter.toneEducational",
+  STORYTELLING: "scriptWriter.toneStorytelling",
+  FAST_PACED: "scriptWriter.toneFastPaced",
+};
 
 export default function ScriptWriterPage() {
+  const t = useT();
   const { currentProject } = useAppStore();
   const ideaIdFromUrl = useSearchParams().get("ideaId");
   const ideaIdFromStore = useWorkflowStore((state) => state.selectedIdeaId);
@@ -72,11 +80,11 @@ export default function ScriptWriterPage() {
         setScript(data.script);
       } else {
         const data = await res.json().catch(() => null);
-        setError(data?.error ?? "Failed to generate script. Please try again.");
+        setError(data?.error ?? t("scriptWriter.errorGenerateFailed"));
       }
     } catch (err) {
       console.error("Failed to generate script:", err);
-      setError("Failed to generate script. Please try again.");
+      setError(t("scriptWriter.errorGenerateFailed"));
     } finally {
       setIsGenerating(false);
     }
@@ -95,11 +103,11 @@ export default function ScriptWriterPage() {
         setScript(data.script);
       } else {
         const data = await res.json().catch(() => null);
-        setError(data?.error ?? "Failed to save section. Please try again.");
+        setError(data?.error ?? t("scriptWriter.errorSaveFailed"));
       }
     } catch (err) {
       console.error("Failed to save section:", err);
-      setError("Failed to save section. Please try again.");
+      setError(t("scriptWriter.errorSaveFailed"));
     }
   }
 
@@ -116,23 +124,21 @@ export default function ScriptWriterPage() {
         setScript(data.script);
       } else {
         const data = await res.json().catch(() => null);
-        setError(data?.error ?? "Failed to regenerate section. Please try again.");
+        setError(data?.error ?? t("scriptWriter.errorRegenerateFailed"));
       }
     } catch (err) {
       console.error("Failed to regenerate section:", err);
-      setError("Failed to regenerate section. Please try again.");
+      setError(t("scriptWriter.errorRegenerateFailed"));
     }
   }
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-fg">Script Writer</h1>
-      <p className="mt-1 text-sm text-fg-subtle">
-        Generate a structured video script with Hook, Intro, Main Content, CTA, and Ending.
-      </p>
+      <h1 className="text-2xl font-bold text-fg">{t("scriptWriter.title")}</h1>
+      <p className="mt-1 text-sm text-fg-subtle">{t("scriptWriter.subtitle")}</p>
 
       {isLoading ? (
-        <p className="mt-6 text-sm text-fg-faint">Loading...</p>
+        <p className="mt-6 text-sm text-fg-faint">{t("common.loading")}</p>
       ) : script ? (
         <div className="mt-6 space-y-4">
           {SECTION_ORDER.map((section) => (
@@ -150,17 +156,17 @@ export default function ScriptWriterPage() {
           <input
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
-            placeholder="Video topic..."
+            placeholder={t("scriptWriter.placeholderTopic")}
             className="mt-4 w-full rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-fg"
           />
           <div className="mt-3 flex w-fit overflow-hidden rounded-md border border-surface-border">
-            {TONES.map((t) => (
+            {TONES.map((toneValue) => (
               <button
-                key={t}
-                onClick={() => setTone(t)}
-                className={`px-3 py-1.5 text-xs ${tone === t ? "bg-accent text-zinc-900" : "text-fg-muted"}`}
+                key={toneValue}
+                onClick={() => setTone(toneValue)}
+                className={`px-3 py-1.5 text-xs ${tone === toneValue ? "bg-accent text-zinc-900" : "text-fg-muted"}`}
               >
-                {t}
+                {t(TONE_KEYS[toneValue])}
               </button>
             ))}
           </div>
@@ -169,7 +175,7 @@ export default function ScriptWriterPage() {
             disabled={isGenerating || !currentProject || !topic.trim()}
             className="mt-3 rounded-md bg-accent px-4 py-2 text-sm font-medium text-zinc-900 disabled:opacity-50"
           >
-            {isGenerating ? "Generating..." : "Generate Script"}
+            {isGenerating ? t("common.generating") : t("scriptWriter.generateButton")}
           </button>
         </>
       )}

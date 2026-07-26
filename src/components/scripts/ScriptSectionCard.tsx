@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useT } from "@/lib/i18n/useTranslation";
 
 export interface Script {
   id: string;
@@ -16,12 +17,12 @@ export interface Script {
 
 export type ScriptSectionKey = "hook" | "intro" | "mainContent" | "cta" | "ending";
 
-const SECTION_LABELS: Record<ScriptSectionKey, string> = {
-  hook: "Hook",
-  intro: "Intro",
-  mainContent: "Main Content",
-  cta: "CTA",
-  ending: "Ending",
+const SECTION_LABEL_KEYS: Record<ScriptSectionKey, string> = {
+  hook: "scriptSectionCard.sectionHook",
+  intro: "scriptSectionCard.sectionIntro",
+  mainContent: "scriptSectionCard.sectionMainContent",
+  cta: "scriptSectionCard.sectionCta",
+  ending: "scriptSectionCard.sectionEnding",
 };
 
 export function ScriptSectionCard({
@@ -37,6 +38,7 @@ export function ScriptSectionCard({
 }) {
   const [text, setText] = useState(value);
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const t = useT();
 
   useEffect(() => {
     setText(value);
@@ -54,13 +56,13 @@ export function ScriptSectionCard({
   return (
     <div className="rounded-lg border border-surface-border bg-surface-raised p-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-fg">{SECTION_LABELS[section]}</h3>
+        <h3 className="text-sm font-semibold text-fg">{t(SECTION_LABEL_KEYS[section])}</h3>
         <button
           onClick={handleRegenerate}
           disabled={isRegenerating}
           className="rounded-md border border-surface-border px-2 py-1 text-xs text-fg-muted hover:text-accent disabled:opacity-50"
         >
-          {isRegenerating ? "Regenerating..." : "Regenerate"}
+          {isRegenerating ? t("common.regenerating") : t("common.regenerate")}
         </button>
       </div>
       <textarea
