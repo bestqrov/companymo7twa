@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { decrypt } from "@/lib/crypto";
 import { regenerateTitleSet } from "@/server/titles";
+import { resolveLanguageName } from "@/lib/language";
 
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
@@ -23,7 +24,8 @@ export async function POST(request: Request, { params }: { params: { id: string 
     const youtubeApiKey = titleSet.project.settings?.youtubeApiKey
       ? decrypt(titleSet.project.settings.youtubeApiKey)
       : null;
-    const updated = await regenerateTitleSet(params.id, youtubeApiKey);
+    const targetLanguage = resolveLanguageName(titleSet.project.settings?.targetLanguage);
+    const updated = await regenerateTitleSet(params.id, youtubeApiKey, targetLanguage);
     return NextResponse.json({ titleSet: updated });
   } catch (error) {
     console.error("Failed to regenerate title set:", error);

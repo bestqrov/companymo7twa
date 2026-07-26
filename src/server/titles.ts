@@ -4,6 +4,7 @@ import { fetchYoutubeTrendContext } from "@/lib/youtube";
 
 export interface TitleGenerationInput {
   topic: string;
+  targetLanguage: string;
   youtubeContext?: string | null;
 }
 
@@ -23,6 +24,8 @@ export function buildTitlesPrompt(input: TitleGenerationInput): string {
 Generate exactly 8 distinct, high-CTR title variations for this video — a mix of styles (curiosity-driven, number-based, direct-benefit, urgency). Each title should be concise and compelling.
 
 Also generate exactly 10 relevant SEO keywords/search terms a creator should consider for this video's tags and description.
+
+Write the titles and keywords in ${input.targetLanguage}.
 
 Respond with ONLY a JSON object shaped like:
 {"titles": ["...", ... (exactly 8)], "keywords": ["...", ... (exactly 10)]}
@@ -69,7 +72,8 @@ export async function createTitleSetForIdeaOrTopic(
   projectId: string,
   ideaId: string | null,
   youtubeApiKey: string | null,
-  topic: string
+  topic: string,
+  targetLanguage: string
 ) {
   if (ideaId) {
     const existing = await prisma.titleSet.findUnique({ where: { ideaId } });
@@ -81,7 +85,7 @@ export async function createTitleSetForIdeaOrTopic(
   const youtubeContext = youtubeApiKey ? await fetchYoutubeTrendContext(youtubeApiKey, topic) : null;
 
   const llm = getLlmClient();
-  const raw = await llm.generateText(buildTitlesPrompt({ topic, youtubeContext }));
+  const raw = await llm.generateText(buildTitlesPrompt({ topic, youtubeContext, targetLanguage }));
   const generated = parseTitlesResponse(raw);
 
   const titleSet = await prisma.titleSet.create({
@@ -97,13 +101,13 @@ export async function createTitleSetForIdeaOrTopic(
   return { titleSet, created: true };
 }
 
-export async function regenerateTitleSet(titleSetId: string, youtubeApiKey: string | null) {
+export async function regenerateTitleSet(titleSetId: string, youtubeApiKey: string | null, targetLanguage: string) {
   const existing = await prisma.titleSet.findUniqueOrThrow({ where: { id: titleSetId } });
 
   const youtubeContext = youtubeApiKey ? await fetchYoutubeTrendContext(youtubeApiKey, existing.topic) : null;
 
   const llm = getLlmClient();
-  const raw = await llm.generateText(buildTitlesPrompt({ topic: existing.topic, youtubeContext }));
+  const raw = await llm.generateText(buildTitlesPrompt({ topic: existing.topic, youtubeContext, targetLanguage }));
   const generated = parseTitlesResponse(raw);
 
   return prisma.titleSet.update({

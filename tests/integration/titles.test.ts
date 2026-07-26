@@ -1,33 +1,36 @@
 import { describe, it, expect, beforeEach, afterAll, vi } from "vitest";
 import { prisma } from "@/lib/prisma";
 
+const generateText = vi.fn(async (_prompt: string) =>
+  JSON.stringify({
+    titles: [
+      "5 Coffee Brewing Mistakes You're Making",
+      "Stop Ruining Your Coffee (5 Fixes)",
+      "Why Your Espresso Tastes Bad",
+      "The Truth About Home Brewing",
+      "5 Mistakes Every Home Barista Makes",
+      "Fix Your Coffee In 5 Minutes",
+      "Your Coffee Is Wrong. Here's Why",
+      "5 Brewing Mistakes Ruining Your Morning",
+    ],
+    keywords: [
+      "coffee brewing",
+      "espresso tips",
+      "home barista",
+      "coffee mistakes",
+      "brewing guide",
+      "coffee tips",
+      "espresso guide",
+      "coffee beginner",
+      "brewing technique",
+      "coffee quality",
+    ],
+  })
+);
+
 vi.mock("@/lib/llm", () => ({
   getLlmClient: () => ({
-    generateText: async () =>
-      JSON.stringify({
-        titles: [
-          "5 Coffee Brewing Mistakes You're Making",
-          "Stop Ruining Your Coffee (5 Fixes)",
-          "Why Your Espresso Tastes Bad",
-          "The Truth About Home Brewing",
-          "5 Mistakes Every Home Barista Makes",
-          "Fix Your Coffee In 5 Minutes",
-          "Your Coffee Is Wrong. Here's Why",
-          "5 Brewing Mistakes Ruining Your Morning",
-        ],
-        keywords: [
-          "coffee brewing",
-          "espresso tips",
-          "home barista",
-          "coffee mistakes",
-          "brewing guide",
-          "coffee tips",
-          "espresso guide",
-          "coffee beginner",
-          "brewing technique",
-          "coffee quality",
-        ],
-      }),
+    generateText,
   }),
 }));
 
@@ -39,6 +42,7 @@ import { createTitleSetForIdeaOrTopic } from "@/server/titles";
 
 describe("createTitleSetForIdeaOrTopic", () => {
   beforeEach(async () => {
+    generateText.mockClear();
     await prisma.titleSet.deleteMany();
     await prisma.script.deleteMany();
     await prisma.thumbnail.deleteMany();
@@ -60,7 +64,7 @@ describe("createTitleSetForIdeaOrTopic", () => {
       data: { userId: user.id, name: "Test Channel", isActive: true, settings: { create: {} } },
     });
 
-    const result = await createTitleSetForIdeaOrTopic(project.id, null, null, "Home coffee brewing mistakes");
+    const result = await createTitleSetForIdeaOrTopic(project.id, null, null, "Home coffee brewing mistakes", "English");
 
     expect(result.created).toBe(true);
     expect(result.titleSet.titles).toHaveLength(8);
@@ -87,8 +91,8 @@ describe("createTitleSetForIdeaOrTopic", () => {
       },
     });
 
-    const first = await createTitleSetForIdeaOrTopic(project.id, idea.id, null, "5 Coffee Mistakes");
-    const second = await createTitleSetForIdeaOrTopic(project.id, idea.id, null, "5 Coffee Mistakes");
+    const first = await createTitleSetForIdeaOrTopic(project.id, idea.id, null, "5 Coffee Mistakes", "English");
+    const second = await createTitleSetForIdeaOrTopic(project.id, idea.id, null, "5 Coffee Mistakes", "English");
 
     expect(first.created).toBe(true);
     expect(second.created).toBe(false);
@@ -96,5 +100,17 @@ describe("createTitleSetForIdeaOrTopic", () => {
 
     const stored = await prisma.titleSet.findMany({ where: { projectId: project.id } });
     expect(stored).toHaveLength(1);
+  });
+
+  it("passes the target language into the prompt sent to the LLM", async () => {
+    const user = await prisma.user.create({ data: { email: "creator-lang@example.com", name: "Creator Lang" } });
+    const project = await prisma.project.create({
+      data: { userId: user.id, name: "Test Channel Lang", isActive: true, settings: { create: {} } },
+    });
+
+    await createTitleSetForIdeaOrTopic(project.id, null, null, "Home coffee brewing mistakes", "French");
+
+    const promptSent = generateText.mock.calls[generateText.mock.calls.length - 1][0] as string;
+    expect(promptSent).toContain("French");
   });
 });

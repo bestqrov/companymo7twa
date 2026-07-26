@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { decrypt } from "@/lib/crypto";
 import { createTitleSetForIdeaOrTopic } from "@/server/titles";
+import { resolveLanguageName } from "@/lib/language";
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
@@ -38,7 +39,8 @@ export async function POST(request: Request) {
   let result;
   try {
     const youtubeApiKey = project.settings?.youtubeApiKey ? decrypt(project.settings.youtubeApiKey) : null;
-    result = await createTitleSetForIdeaOrTopic(projectId, resolvedIdeaId, youtubeApiKey, topic);
+    const targetLanguage = resolveLanguageName(project.settings?.targetLanguage);
+    result = await createTitleSetForIdeaOrTopic(projectId, resolvedIdeaId, youtubeApiKey, topic, targetLanguage);
   } catch (error) {
     console.error("Failed to generate title set:", error);
     return NextResponse.json({ error: "Failed to generate titles. Please try again." }, { status: 502 });

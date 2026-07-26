@@ -3,21 +3,27 @@ import { buildTitlesPrompt, parseTitlesResponse } from "@/server/titles";
 
 describe("buildTitlesPrompt", () => {
   it("includes the topic", () => {
-    const prompt = buildTitlesPrompt({ topic: "Home coffee brewing mistakes" });
+    const prompt = buildTitlesPrompt({ topic: "Home coffee brewing mistakes", targetLanguage: "English" });
     expect(prompt).toContain("Home coffee brewing mistakes");
   });
 
   it("includes YouTube context when provided", () => {
     const prompt = buildTitlesPrompt({
       topic: "Home coffee brewing mistakes",
+      targetLanguage: "English",
       youtubeContext: '- "Top 5 Espresso Tips" (1000000 views)',
     });
     expect(prompt).toContain("Top 5 Espresso Tips");
   });
 
   it("omits the YouTube context section when not provided", () => {
-    const prompt = buildTitlesPrompt({ topic: "Home coffee brewing mistakes" });
+    const prompt = buildTitlesPrompt({ topic: "Home coffee brewing mistakes", targetLanguage: "English" });
     expect(prompt).not.toContain("real YouTube trend data");
+  });
+
+  it("includes a language instruction for the given target language", () => {
+    const prompt = buildTitlesPrompt({ topic: "Home coffee brewing mistakes", targetLanguage: "Arabic" });
+    expect(prompt).toContain("Arabic");
   });
 });
 
