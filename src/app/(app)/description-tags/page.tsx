@@ -6,6 +6,7 @@ import { useAppStore } from "@/store/useAppStore";
 import { useWorkflowStore } from "@/store/useWorkflowStore";
 import { EditableChipList } from "@/components/descriptionTags/EditableChipList";
 import { YOUTUBE_CATEGORIES } from "@/lib/youtubeCategories";
+import { useT } from "@/lib/i18n/useTranslation";
 
 interface DescriptionTagSet {
   id: string;
@@ -19,6 +20,7 @@ interface DescriptionTagSet {
 }
 
 export default function DescriptionTagsPage() {
+  const t = useT();
   const { currentProject } = useAppStore();
   const ideaIdFromUrl = useSearchParams().get("ideaId");
   const ideaIdFromStore = useWorkflowStore((state) => state.selectedIdeaId);
@@ -93,11 +95,11 @@ export default function DescriptionTagsPage() {
         setRevision((r) => r + 1);
       } else {
         const data = await res.json().catch(() => null);
-        setError(data?.error ?? "Failed to generate metadata. Please try again.");
+        setError(data?.error ?? t("descriptionTags.errorGenerateFailed"));
       }
     } catch (err) {
       console.error("Failed to generate metadata:", err);
-      setError("Failed to generate metadata. Please try again.");
+      setError(t("descriptionTags.errorGenerateFailed"));
     } finally {
       setIsGenerating(false);
     }
@@ -116,11 +118,11 @@ export default function DescriptionTagsPage() {
         setSet(data.descriptionTagSet);
       } else {
         const data = await res.json().catch(() => null);
-        setError(data?.error ?? "Failed to save changes. Please try again.");
+        setError(data?.error ?? t("descriptionTags.errorSaveFailed"));
       }
     } catch (err) {
       console.error("Failed to save changes:", err);
-      setError("Failed to save changes. Please try again.");
+      setError(t("descriptionTags.errorSaveFailed"));
     }
   }
 
@@ -136,11 +138,11 @@ export default function DescriptionTagsPage() {
         setRevision((r) => r + 1);
       } else {
         const data = await res.json().catch(() => null);
-        setError(data?.error ?? "Failed to regenerate metadata. Please try again.");
+        setError(data?.error ?? t("descriptionTags.errorRegenerateFailed"));
       }
     } catch (err) {
       console.error("Failed to regenerate metadata:", err);
-      setError("Failed to regenerate metadata. Please try again.");
+      setError(t("descriptionTags.errorRegenerateFailed"));
     } finally {
       setIsRegenerating(false);
     }
@@ -148,28 +150,28 @@ export default function DescriptionTagsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-fg">Description & Tags</h1>
+      <h1 className="text-2xl font-bold text-fg">{t("descriptionTags.title")}</h1>
       <p className="mt-1 text-sm text-fg-subtle">
-        Generate a full metadata package: description, tags, hashtags, category, and a pinned-comment suggestion.
+        {t("descriptionTags.subtitle")}
       </p>
 
       {isLoading ? (
-        <p className="mt-6 text-sm text-fg-faint">Loading...</p>
+        <p className="mt-6 text-sm text-fg-faint">{t("common.loading")}</p>
       ) : set ? (
         <div className="mt-6 space-y-6">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-fg-subtle">Topic: {set.topic}</p>
+            <p className="text-sm text-fg-subtle">{t("descriptionTags.topicLabel")} {set.topic}</p>
             <button
               onClick={regenerate}
               disabled={isRegenerating}
               className="rounded-md border border-surface-border px-3 py-1.5 text-xs text-fg-muted hover:text-accent disabled:opacity-50"
             >
-              {isRegenerating ? "Regenerating..." : "Regenerate"}
+              {isRegenerating ? t("common.regenerating") : t("common.regenerate")}
             </button>
           </div>
 
           <div>
-            <p className="text-[10px] uppercase tracking-wide text-fg-faint">Description</p>
+            <p className="text-[10px] uppercase tracking-wide text-fg-faint">{t("descriptionTags.descriptionLabel")}</p>
             <textarea
               value={descriptionDraft}
               onChange={(e) => setDescriptionDraft(e.target.value)}
@@ -185,19 +187,21 @@ export default function DescriptionTagsPage() {
 
           <EditableChipList
             key={`tags-${revision}`}
-            label="Tags"
+            label={t("descriptionTags.tagsLabel")}
             chips={set.tags}
             onSave={(chips) => saveField("tags", chips)}
+            placeholder={`${t("editableChipList.addPrefix")} ${t("descriptionTags.tagsLabel").toLowerCase()}...`}
           />
           <EditableChipList
             key={`hashtags-${revision}`}
-            label="Hashtags"
+            label={t("descriptionTags.hashtagsLabel")}
             chips={set.hashtags}
             onSave={(chips) => saveField("hashtags", chips)}
+            placeholder={`${t("editableChipList.addPrefix")} ${t("descriptionTags.hashtagsLabel").toLowerCase()}...`}
           />
 
           <div>
-            <p className="text-[10px] uppercase tracking-wide text-fg-faint">Category</p>
+            <p className="text-[10px] uppercase tracking-wide text-fg-faint">{t("descriptionTags.categoryLabel")}</p>
             <select
               value={set.category}
               onChange={(e) => saveField("category", e.target.value)}
@@ -212,7 +216,7 @@ export default function DescriptionTagsPage() {
           </div>
 
           <div>
-            <p className="text-[10px] uppercase tracking-wide text-fg-faint">Pinned Comment</p>
+            <p className="text-[10px] uppercase tracking-wide text-fg-faint">{t("descriptionTags.pinnedCommentLabel")}</p>
             <textarea
               value={pinnedCommentDraft}
               onChange={(e) => setPinnedCommentDraft(e.target.value)}
@@ -231,7 +235,7 @@ export default function DescriptionTagsPage() {
           <input
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
-            placeholder="Video topic..."
+            placeholder={t("descriptionTags.placeholderTopic")}
             className="mt-4 w-full rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-fg"
           />
           <button
@@ -239,7 +243,7 @@ export default function DescriptionTagsPage() {
             disabled={isGenerating || !currentProject || !topic.trim()}
             className="mt-3 rounded-md bg-accent px-4 py-2 text-sm font-medium text-zinc-900 disabled:opacity-50"
           >
-            {isGenerating ? "Generating..." : "Generate Metadata"}
+            {isGenerating ? t("common.generating") : t("descriptionTags.generateButton")}
           </button>
         </>
       )}

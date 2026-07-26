@@ -6,10 +6,12 @@ export function EditableChipList({
   label,
   chips,
   onSave,
+  placeholder,
 }: {
   label: string;
   chips: string[];
   onSave: (chips: string[]) => void;
+  placeholder: string;
 }) {
   const [localChips, setLocalChips] = useState(chips);
   const [draft, setDraft] = useState("");
@@ -55,7 +57,7 @@ export function EditableChipList({
               addChip();
             }
           }}
-          placeholder={`Add ${label.toLowerCase()}...`}
+          placeholder={placeholder}
           className="w-full rounded-md border border-surface-border bg-surface px-3 py-2 text-sm text-fg"
         />
       </div>

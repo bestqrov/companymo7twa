@@ -105,6 +105,7 @@ export function PlatformVariantCard({
           label="Hashtags"
           chips={variant.hashtags}
           onSave={(chips) => onSaveField(variant.id, "hashtags", chips)}
+          placeholder="Add hashtags..."
         />
       </div>
     </div>
