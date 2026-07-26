@@ -2,9 +2,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { getUserProjects } from "@/server/projects";
 import { prisma } from "@/lib/prisma";
-import { IdeasChart, type DailyPoint } from "@/components/dashboard/IdeasChart";
+import { DashboardView } from "@/components/dashboard/DashboardView";
+import type { DailyPoint } from "@/components/dashboard/IdeasChart";
 
-const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const DAY_LABELS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 
 function buildLastSevenDays(createdAts: Date[]): DailyPoint[] {
   const days: DailyPoint[] = [];
@@ -52,45 +53,14 @@ export default async function DashboardPage() {
     chartData = buildLastSevenDays(ideas.map((idea) => idea.createdAt));
   }
 
-  const stats = [
-    { label: "Ideas Generated", value: ideasCount, color: "#2a78d6", icon: "💡" },
-    { label: "Thumbnails Generated", value: thumbnailsCount, color: "#eb6834", icon: "🖼️" },
-    { label: "Avg Virality Score", value: avgViralityScore ?? "—", color: "#1baf7a", icon: "📈" },
-    { label: "Avg Thumbnail CTR", value: avgCtrEstimate !== null ? `${avgCtrEstimate}%` : "—", color: "#eda100", icon: "🎯" },
-  ];
-
   return (
-    <div>
-      <p className="text-xs font-semibold uppercase tracking-wide text-accent">Analytics Dashboard</p>
-      <h1 className="mt-1 text-3xl font-bold text-fg">{activeProject?.name ?? "My First Channel"}</h1>
-      <p className="mt-2 max-w-xl text-fg-subtle">
-        A live snapshot of everything ArwaTube AI has generated for this project.
-      </p>
-
-      <div className="mt-6 rounded-xl bg-[#f9f9f7] p-6">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {stats.map((stat) => (
-            <div
-              key={stat.label}
-              className="flex flex-col justify-between rounded-lg p-4 text-white shadow-sm"
-              style={{ backgroundColor: stat.color }}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-2xl">{stat.icon}</span>
-                <span className="text-3xl font-bold">{stat.value}</span>
-              </div>
-              <p className="mt-3 text-sm font-medium opacity-95">{stat.label}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-6 rounded-lg border border-[#e1e0d9] bg-[#fcfcfb] p-4">
-          <p className="text-sm font-semibold text-[#0b0b0b]">Ideas Generated — Last 7 Days</p>
-          <div className="mt-3">
-            <IdeasChart data={chartData} />
-          </div>
-        </div>
-      </div>
-    </div>
+    <DashboardView
+      projectName={activeProject?.name ?? null}
+      ideasCount={ideasCount}
+      thumbnailsCount={thumbnailsCount}
+      avgViralityScore={avgViralityScore}
+      avgCtrEstimate={avgCtrEstimate}
+      chartData={chartData}
+    />
   );
 }

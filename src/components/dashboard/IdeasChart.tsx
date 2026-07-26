@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useT } from "@/lib/i18n/useTranslation";
 
 export interface DailyPoint {
   label: string;
@@ -11,8 +12,19 @@ const WIDTH = 600;
 const HEIGHT = 180;
 const PADDING = 24;
 
+const DAY_KEY_TO_TRANSLATION_KEY: Record<string, string> = {
+  sun: "dashboard.daySun",
+  mon: "dashboard.dayMon",
+  tue: "dashboard.dayTue",
+  wed: "dashboard.dayWed",
+  thu: "dashboard.dayThu",
+  fri: "dashboard.dayFri",
+  sat: "dashboard.daySat",
+};
+
 export function IdeasChart({ data }: { data: DailyPoint[] }) {
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+  const t = useT();
 
   const max = Math.max(1, ...data.map((d) => d.count));
   const stepX = (WIDTH - PADDING * 2) / Math.max(1, data.length - 1);
@@ -22,6 +34,9 @@ export function IdeasChart({ data }: { data: DailyPoint[] }) {
   }
   function yFor(count: number) {
     return HEIGHT - PADDING - (count / max) * (HEIGHT - PADDING * 2);
+  }
+  function dayLabel(key: string): string {
+    return t(DAY_KEY_TO_TRANSLATION_KEY[key] ?? "dashboard.dayMon");
   }
 
   const linePath = data.map((d, i) => `${i === 0 ? "M" : "L"}${xFor(i)},${yFor(d.count)}`).join(" ");
@@ -69,13 +84,13 @@ export function IdeasChart({ data }: { data: DailyPoint[] }) {
           }}
         >
           <span className="font-semibold text-zinc-900">{data[hoverIndex].count}</span>{" "}
-          <span className="text-fg-faint">{data[hoverIndex].label}</span>
+          <span className="text-fg-faint">{dayLabel(data[hoverIndex].label)}</span>
         </div>
       )}
 
       <div className="mt-1 flex justify-between text-[10px] text-fg-subtle">
         {data.map((d) => (
-          <span key={d.label}>{d.label}</span>
+          <span key={d.label}>{dayLabel(d.label)}</span>
         ))}
       </div>
     </div>
