@@ -70,10 +70,15 @@ describe("createThumbnailsForProject", () => {
       data: { userId: user.id, name: "Test Channel", isActive: true, settings: { create: {} } },
     });
 
-    const thumbnails = await createThumbnailsForProject(project.id, null, {
-      prompt: "a red espresso cup with dramatic lighting",
-      mode: "single",
-    });
+    const thumbnails = await createThumbnailsForProject(
+      project.id,
+      null,
+      {
+        prompt: "a red espresso cup with dramatic lighting",
+        mode: "single",
+      },
+      "English"
+    );
 
     expect(thumbnails).toHaveLength(1);
     expect(thumbnails[0].ctrSource).toBe("AI_ESTIMATE");
@@ -87,10 +92,15 @@ describe("createThumbnailsForProject", () => {
       data: { userId: user.id, name: "Test Channel 2", isActive: true, settings: { create: {} } },
     });
 
-    const thumbnails = await createThumbnailsForProject(project.id, null, {
-      prompt: "a blue espresso cup",
-      mode: "abtest",
-    });
+    const thumbnails = await createThumbnailsForProject(
+      project.id,
+      null,
+      {
+        prompt: "a blue espresso cup",
+        mode: "abtest",
+      },
+      "English"
+    );
 
     expect(thumbnails).toHaveLength(4);
     const variantGroups = new Set(thumbnails.map((t) => t.variantGroup));
@@ -119,10 +129,15 @@ describe("createThumbnailsForProject", () => {
       data: { userId: user.id, name: "Test Channel 3", isActive: true, settings: { create: {} } },
     });
 
-    const thumbnails = await createThumbnailsForProject(project.id, null, {
-      prompt: "a green espresso cup",
-      mode: "single",
-    });
+    const thumbnails = await createThumbnailsForProject(
+      project.id,
+      null,
+      {
+        prompt: "a green espresso cup",
+        mode: "single",
+      },
+      "English"
+    );
 
     // The image generation succeeded (and was paid for) even though CTR
     // estimation threw, so the thumbnail must still be persisted rather
@@ -131,5 +146,19 @@ describe("createThumbnailsForProject", () => {
     expect(thumbnails[0].ctrSource).toBe("AI_ESTIMATE");
     expect(thumbnails[0].ctrEstimate).toBe(5);
     expect(thumbnails[0].imageUrl).toBe("https://higgsfield.ai/img/generated.png");
+  });
+
+  it("passes the target language into the brief prompt sent to the LLM", async () => {
+    const user = await prisma.user.create({ data: { email: "creator-lang@example.com", name: "Creator Lang" } });
+    const project = await prisma.project.create({
+      data: { userId: user.id, name: "Test Channel Lang", isActive: true, settings: { create: {} } },
+    });
+
+    await createThumbnailsForProject(project.id, null, { prompt: "a red espresso cup", mode: "single" }, "French");
+
+    const briefPromptCalls = generateText.mock.calls
+      .map((call) => call[0] as string)
+      .filter((prompt) => !prompt.includes("ctrEstimate"));
+    expect(briefPromptCalls.some((p) => p.includes("write it in French"))).toBe(true);
   });
 });

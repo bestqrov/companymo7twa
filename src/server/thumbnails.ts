@@ -37,6 +37,7 @@ export const VARIATION_HINTS: string[] = [
 export interface ThumbnailBriefInput {
   topic: string;
   variationHint: string;
+  targetLanguage: string;
   ideaTitle?: string | null;
   scriptHook?: string | null;
   selectedTitle?: string | null;
@@ -98,7 +99,7 @@ TOPIC: ${input.topic}${contextBlock}
 Invent the specific creative details that fit this topic and composition pattern. Respond with ONLY a JSON object shaped like:
 {"niche": "...", "story": "...", "person": "...", "emotion": "...", "before": "...", "after": "...", "object": "...", "background": "...", "color": "...", "compositionPattern": "...", "thumbnailText": "...", "negativePrompt": "..."}
 
-"compositionPattern" must be a short restatement of which of the 4 composition patterns above you chose (matching the one given in "For THIS thumbnail specifically" above). "thumbnailText" is the exact bold on-thumbnail text (short, punchy, e.g. "$12 → $1,000") — write it in the SAME language as the TOPIC below (e.g. Arabic topic → Arabic thumbnailText, French topic → French thumbnailText), not translated to English. "negativePrompt" is a comma-separated list of things to avoid in the image (e.g. "blurry, low quality, watermark, logo, illustration, cartoon, extra hands, extra fingers, duplicate people, cropped face, noise").
+"compositionPattern" must be a short restatement of which of the 4 composition patterns above you chose (matching the one given in "For THIS thumbnail specifically" above). "thumbnailText" is the exact bold on-thumbnail text (short, punchy, e.g. "$12 → $1,000") — write it in ${input.targetLanguage}. All other fields (niche, story, person, emotion, before, after, object, background, color, negativePrompt) must stay in English regardless, since they describe the image-generation scene, not visible text. "negativePrompt" is a comma-separated list of things to avoid in the image (e.g. "blurry, low quality, watermark, logo, illustration, cartoon, extra hands, extra fingers, duplicate people, cropped face, noise").
 
 Do not include any text outside the JSON object.`;
 }
@@ -252,7 +253,8 @@ async function fetchThumbnailContext(
 export async function createThumbnailsForProject(
   projectId: string,
   ideaId: string | null,
-  input: { prompt: string; mode: "single" | "abtest" }
+  input: { prompt: string; mode: "single" | "abtest" },
+  targetLanguage: string
 ) {
   const variantCount = input.mode === "abtest" ? 4 : 1;
   const variantGroup = crypto.randomUUID();
@@ -269,6 +271,7 @@ export async function createThumbnailsForProject(
       buildThumbnailBriefPrompt({
         topic: input.prompt,
         variationHint: VARIATION_HINTS[i % VARIATION_HINTS.length],
+        targetLanguage,
         ideaTitle: context.ideaTitle,
         scriptHook: context.scriptHook,
         selectedTitle: context.selectedTitle,

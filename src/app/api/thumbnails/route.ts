@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createThumbnailsForProject } from "@/server/thumbnails";
+import { resolveLanguageName } from "@/lib/language";
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
@@ -18,7 +19,10 @@ export async function POST(request: Request) {
     );
   }
 
-  const project = await prisma.project.findFirst({ where: { id: projectId, userId: session.user.id } });
+  const project = await prisma.project.findFirst({
+    where: { id: projectId, userId: session.user.id },
+    include: { settings: true },
+  });
   if (!project) {
     return NextResponse.json({ error: "Project not found" }, { status: 404 });
   }
@@ -36,7 +40,8 @@ export async function POST(request: Request) {
 
   let thumbnails;
   try {
-    thumbnails = await createThumbnailsForProject(projectId, resolvedIdeaId, { prompt, mode });
+    const targetLanguage = resolveLanguageName(project.settings?.targetLanguage);
+    thumbnails = await createThumbnailsForProject(projectId, resolvedIdeaId, { prompt, mode }, targetLanguage);
   } catch (error) {
     console.error("Failed to generate thumbnails:", error);
     return NextResponse.json({ error: "Failed to generate thumbnails. Please try again." }, { status: 502 });

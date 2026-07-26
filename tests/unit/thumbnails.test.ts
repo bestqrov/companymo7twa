@@ -56,31 +56,38 @@ describe("buildThumbnailBriefPrompt", () => {
     const prompt = buildThumbnailBriefPrompt({
       topic: "I made $1,000 in 7 days with zero followers",
       variationHint: VARIATION_HINTS[0],
+      targetLanguage: "English",
     });
     expect(prompt).toContain("I made $1,000 in 7 days with zero followers");
   });
 
   it("includes the designer-principles boilerplate", () => {
-    const prompt = buildThumbnailBriefPrompt({ topic: "any topic", variationHint: VARIATION_HINTS[0] });
+    const prompt = buildThumbnailBriefPrompt({ topic: "any topic", variationHint: VARIATION_HINTS[0], targetLanguage: "English" });
     expect(prompt).toContain("Before vs After whenever possible");
     expect(prompt).toContain("Photorealistic");
     expect(prompt).toContain("MrBeast");
   });
 
   it("includes the given variation hint", () => {
-    const prompt = buildThumbnailBriefPrompt({ topic: "any topic", variationHint: VARIATION_HINTS[2] });
+    const prompt = buildThumbnailBriefPrompt({ topic: "any topic", variationHint: VARIATION_HINTS[2], targetLanguage: "English" });
     expect(prompt).toContain("day-1-vs-day-7 split panel");
   });
 
-  it("instructs thumbnailText to match the topic's language", () => {
-    const prompt = buildThumbnailBriefPrompt({ topic: "any topic", variationHint: VARIATION_HINTS[0] });
-    expect(prompt).toContain("write it in the SAME language as the TOPIC");
+  it("instructs thumbnailText to be written in the given target language", () => {
+    const prompt = buildThumbnailBriefPrompt({ topic: "any topic", variationHint: VARIATION_HINTS[0], targetLanguage: "Arabic" });
+    expect(prompt).toContain("write it in Arabic");
+  });
+
+  it("instructs all other brief fields to stay in English regardless of target language", () => {
+    const prompt = buildThumbnailBriefPrompt({ topic: "any topic", variationHint: VARIATION_HINTS[0], targetLanguage: "Arabic" });
+    expect(prompt).toContain("must stay in English regardless");
   });
 
   it("includes idea/script/title context when provided", () => {
     const prompt = buildThumbnailBriefPrompt({
       topic: "any topic",
       variationHint: VARIATION_HINTS[0],
+      targetLanguage: "English",
       ideaTitle: "5 Coffee Mistakes",
       scriptHook: "Your coffee is probably wrong",
       selectedTitle: "Stop Ruining Your Coffee",
@@ -91,7 +98,7 @@ describe("buildThumbnailBriefPrompt", () => {
   });
 
   it("omits context sections when not provided", () => {
-    const prompt = buildThumbnailBriefPrompt({ topic: "any topic", variationHint: VARIATION_HINTS[0] });
+    const prompt = buildThumbnailBriefPrompt({ topic: "any topic", variationHint: VARIATION_HINTS[0], targetLanguage: "English" });
     expect(prompt).not.toContain("working title");
     expect(prompt).not.toContain("script opens with");
     expect(prompt).not.toContain("already chosen this title");
