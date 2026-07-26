@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { translations } from "@/lib/i18n/translations";
-import { useT } from "@/lib/i18n/useTranslation";
-import { useAppStore } from "@/store/useAppStore";
+import { translate } from "@/lib/i18n/useTranslation";
 
 function collectKeys(obj: Record<string, unknown>, prefix = ""): string[] {
   return Object.entries(obj).flatMap(([key, value]) => {
@@ -35,24 +34,18 @@ describe("translations", () => {
   });
 });
 
-describe("useT", () => {
+describe("translate", () => {
   it("returns the English string for a known key when locale is en", () => {
-    useAppStore.setState({ locale: "en" });
-    const t = useT();
-    expect(t("nav.dashboard")).toBe(translations.en.nav.dashboard);
+    expect(translate("en", "nav.dashboard")).toBe(translations.en.nav.dashboard);
   });
 
   it("returns the French string for a known key when locale is fr", () => {
-    useAppStore.setState({ locale: "fr" });
-    const t = useT();
-    expect(t("nav.dashboard")).toBe(translations.fr.nav.dashboard);
+    expect(translate("fr", "nav.dashboard")).toBe(translations.fr.nav.dashboard);
   });
 
   it("falls back to English when the key is missing from a non-English locale", () => {
-    useAppStore.setState({ locale: "fr" });
-    const t = useT();
     // "common.generate" always exists per the dictionary below, so simulate a
     // missing key by looking up something that structurally cannot exist.
-    expect(t("thisKeyDoesNotExist.atAll")).toBe("thisKeyDoesNotExist.atAll");
+    expect(translate("fr", "thisKeyDoesNotExist.atAll")).toBe("thisKeyDoesNotExist.atAll");
   });
 });
