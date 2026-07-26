@@ -31,15 +31,15 @@ export function EditableChipList({
 
   return (
     <div>
-      <p className="text-[10px] uppercase tracking-wide text-zinc-500">{label}</p>
+      <p className="text-[10px] uppercase tracking-wide text-fg-faint">{label}</p>
       <div className="mt-2 flex flex-wrap gap-2">
         {localChips.map((chip, index) => (
           <span
             key={index}
-            className="flex items-center gap-1 rounded-full border border-surface-border bg-surface-raised px-3 py-1 text-xs text-zinc-300"
+            className="flex items-center gap-1 rounded-full border border-surface-border bg-surface-raised px-3 py-1 text-xs text-fg-muted"
           >
             {chip}
-            <button type="button" onClick={() => removeChip(index)} className="text-zinc-500 hover:text-red-400">
+            <button type="button" onClick={() => removeChip(index)} className="text-fg-faint hover:text-red-400">
               ×
             </button>
           </span>
@@ -56,7 +56,7 @@ export function EditableChipList({
             }
           }}
           placeholder={`Add ${label.toLowerCase()}...`}
-          className="w-full rounded-md border border-surface-border bg-surface px-3 py-2 text-sm text-zinc-100"
+          className="w-full rounded-md border border-surface-border bg-surface px-3 py-2 text-sm text-fg"
         />
       </div>
     </div>

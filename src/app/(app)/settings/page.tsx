@@ -30,26 +30,26 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-xl space-y-6">
-      <h1 className="text-2xl font-bold text-zinc-100">Settings</h1>
+      <h1 className="text-2xl font-bold text-fg">Settings</h1>
 
-      <div className="rounded-md border border-surface-border bg-surface-raised p-4 text-sm text-zinc-400">
+      <div className="rounded-md border border-surface-border bg-surface-raised p-4 text-sm text-fg-subtle">
         Without a YouTube API key, Idea Finder falls back to heuristic AI-generated ideas instead of
         real search-trend data.
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-zinc-300">YouTube Data API Key</label>
+        <label className="block text-sm font-medium text-fg-muted">YouTube Data API Key</label>
         <div className="mt-1 flex gap-2">
           <input
             type={showKey ? "text" : "password"}
             value={youtubeApiKey}
             onChange={(e) => setYoutubeApiKey(e.target.value)}
             placeholder="Enter to update — leave blank to keep current key"
-            className="flex-1 rounded-md border border-surface-border bg-surface px-3 py-2 text-sm text-zinc-100"
+            className="flex-1 rounded-md border border-surface-border bg-surface px-3 py-2 text-sm text-fg"
           />
           <button
             onClick={() => setShowKey((v) => !v)}
-            className="rounded-md border border-surface-border px-3 text-sm text-zinc-300"
+            className="rounded-md border border-surface-border px-3 text-sm text-fg-muted"
           >
             {showKey ? "Hide" : "Show"}
           </button>
@@ -58,11 +58,11 @@ export default function SettingsPage() {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-zinc-300">Target Country</label>
+          <label className="block text-sm font-medium text-fg-muted">Target Country</label>
           <select
             value={targetCountry}
             onChange={(e) => setTargetCountry(e.target.value)}
-            className="mt-1 w-full rounded-md border border-surface-border bg-surface px-3 py-2 text-sm text-zinc-100"
+            className="mt-1 w-full rounded-md border border-surface-border bg-surface px-3 py-2 text-sm text-fg"
           >
             <option value="US">United States</option>
             <option value="MA">Morocco</option>
@@ -71,11 +71,11 @@ export default function SettingsPage() {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-zinc-300">Target Language</label>
+          <label className="block text-sm font-medium text-fg-muted">Target Language</label>
           <select
             value={targetLanguage}
             onChange={(e) => setTargetLanguage(e.target.value)}
-            className="mt-1 w-full rounded-md border border-surface-border bg-surface px-3 py-2 text-sm text-zinc-100"
+            className="mt-1 w-full rounded-md border border-surface-border bg-surface px-3 py-2 text-sm text-fg"
           >
             <option value="en">English</option>
             <option value="fr">French</option>

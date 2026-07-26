@@ -54,11 +54,11 @@ export function ScriptSectionCard({
   return (
     <div className="rounded-lg border border-surface-border bg-surface-raised p-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-zinc-100">{SECTION_LABELS[section]}</h3>
+        <h3 className="text-sm font-semibold text-fg">{SECTION_LABELS[section]}</h3>
         <button
           onClick={handleRegenerate}
           disabled={isRegenerating}
-          className="rounded-md border border-surface-border px-2 py-1 text-xs text-zinc-300 hover:text-accent disabled:opacity-50"
+          className="rounded-md border border-surface-border px-2 py-1 text-xs text-fg-muted hover:text-accent disabled:opacity-50"
         >
           {isRegenerating ? "Regenerating..." : "Regenerate"}
         </button>
@@ -72,7 +72,7 @@ export function ScriptSectionCard({
           }
         }}
         rows={section === "mainContent" ? 8 : 3}
-        className="mt-2 w-full rounded-md border border-surface-border bg-surface px-3 py-2 text-sm text-zinc-100"
+        className="mt-2 w-full rounded-md border border-surface-border bg-surface px-3 py-2 text-sm text-fg"
       />
     </div>
   );

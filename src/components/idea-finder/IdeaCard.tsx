@@ -32,7 +32,7 @@ export function IdeaCard({ idea }: { idea: Idea }) {
   return (
     <div className="rounded-lg border border-surface-border bg-surface-raised p-4">
       <div className="flex items-start justify-between">
-        <span className="rounded bg-zinc-700 px-2 py-0.5 text-[10px] font-bold text-zinc-200">
+        <span className="rounded bg-zinc-700 px-2 py-0.5 text-[10px] font-bold text-fg">
           {idea.scoreSource === "REAL_YOUTUBE_DATA" ? "REAL YOUTUBE DATA" : "AI ESTIMATE"}
         </span>
         <div
@@ -42,12 +42,12 @@ export function IdeaCard({ idea }: { idea: Idea }) {
           {idea.viralityScore}
         </div>
       </div>
-      <h3 className="mt-2 text-sm font-semibold text-zinc-100">{idea.title}</h3>
-      <p className="mt-1 text-xs text-zinc-400">{idea.description}</p>
-      <div className="mt-2 rounded-md border border-surface-border bg-surface px-3 py-2 text-xs text-zinc-300">
+      <h3 className="mt-2 text-sm font-semibold text-fg">{idea.title}</h3>
+      <p className="mt-1 text-xs text-fg-subtle">{idea.description}</p>
+      <div className="mt-2 rounded-md border border-surface-border bg-surface px-3 py-2 text-xs text-fg-muted">
         <span className="font-semibold">Hook:</span> {idea.hook}
       </div>
-      <p className="mt-3 text-[10px] uppercase tracking-wide text-zinc-500">Use this idea in</p>
+      <p className="mt-3 text-[10px] uppercase tracking-wide text-fg-faint">Use this idea in</p>
       <div className="mt-1 flex gap-2">
         {IDEA_ACTIONS.map((action) => (
           <a
@@ -58,7 +58,7 @@ export function IdeaCard({ idea }: { idea: Idea }) {
             title={action.label}
             aria-label={action.label}
             onClick={() => setSelectedIdeaId(idea.id)}
-            className="rounded-md border border-surface-border px-2 py-1 text-sm text-zinc-300 hover:text-accent"
+            className="rounded-md border border-surface-border px-2 py-1 text-sm text-fg-muted hover:text-accent"
           >
             {action.icon}
           </a>

@@ -31,7 +31,7 @@ export function ThumbnailCard({
           CTR {thumbnail.ctrEstimate}%
         </span>
       </div>
-      <p className="mt-2 text-[10px] uppercase tracking-wide text-zinc-500">
+      <p className="mt-2 text-[10px] uppercase tracking-wide text-fg-faint">
         {thumbnail.ctrSource === "HIGGSFIELD_PREDICTOR" ? "Higgsfield" : "AI Estimate"}
       </p>
       <div className="mt-2 flex gap-2">
@@ -40,13 +40,13 @@ export function ThumbnailCard({
           download
           target="_blank"
           rel="noreferrer"
-          className="rounded-md border border-surface-border px-2 py-1 text-xs text-zinc-300 hover:text-accent"
+          className="rounded-md border border-surface-border px-2 py-1 text-xs text-fg-muted hover:text-accent"
         >
           Download
         </a>
         <button
           onClick={() => onSaveToDrive(thumbnail.id)}
-          className="rounded-md border border-surface-border px-2 py-1 text-xs text-zinc-300 hover:text-accent"
+          className="rounded-md border border-surface-border px-2 py-1 text-xs text-fg-muted hover:text-accent"
         >
           Save to Drive
         </button>

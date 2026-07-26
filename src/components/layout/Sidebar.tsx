@@ -1,6 +1,5 @@
 import { SidebarNavItem } from "./SidebarNavItem";
 import { ProjectSwitcher } from "./ProjectSwitcher";
-import { LanguageSwitcher } from "./LanguageSwitcher";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard" },
@@ -23,9 +22,6 @@ export function Sidebar() {
       </div>
       <div className="mb-4">
         <ProjectSwitcher />
-      </div>
-      <div className="mb-4">
-        <LanguageSwitcher />
       </div>
       <nav className="flex-1 space-y-1 overflow-y-auto">
         {NAV_ITEMS.map((item) => (

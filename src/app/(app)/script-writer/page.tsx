@@ -126,13 +126,13 @@ export default function ScriptWriterPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-zinc-100">Script Writer</h1>
-      <p className="mt-1 text-sm text-zinc-400">
+      <h1 className="text-2xl font-bold text-fg">Script Writer</h1>
+      <p className="mt-1 text-sm text-fg-subtle">
         Generate a structured video script with Hook, Intro, Main Content, CTA, and Ending.
       </p>
 
       {isLoading ? (
-        <p className="mt-6 text-sm text-zinc-500">Loading...</p>
+        <p className="mt-6 text-sm text-fg-faint">Loading...</p>
       ) : script ? (
         <div className="mt-6 space-y-4">
           {SECTION_ORDER.map((section) => (
@@ -151,14 +151,14 @@ export default function ScriptWriterPage() {
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             placeholder="Video topic..."
-            className="mt-4 w-full rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-zinc-100"
+            className="mt-4 w-full rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-fg"
           />
           <div className="mt-3 flex w-fit overflow-hidden rounded-md border border-surface-border">
             {TONES.map((t) => (
               <button
                 key={t}
                 onClick={() => setTone(t)}
-                className={`px-3 py-1.5 text-xs ${tone === t ? "bg-accent text-zinc-900" : "text-zinc-300"}`}
+                className={`px-3 py-1.5 text-xs ${tone === t ? "bg-accent text-zinc-900" : "text-fg-muted"}`}
               >
                 {t}
               </button>

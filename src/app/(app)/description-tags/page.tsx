@@ -148,28 +148,28 @@ export default function DescriptionTagsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-zinc-100">Description & Tags</h1>
-      <p className="mt-1 text-sm text-zinc-400">
+      <h1 className="text-2xl font-bold text-fg">Description & Tags</h1>
+      <p className="mt-1 text-sm text-fg-subtle">
         Generate a full metadata package: description, tags, hashtags, category, and a pinned-comment suggestion.
       </p>
 
       {isLoading ? (
-        <p className="mt-6 text-sm text-zinc-500">Loading...</p>
+        <p className="mt-6 text-sm text-fg-faint">Loading...</p>
       ) : set ? (
         <div className="mt-6 space-y-6">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-zinc-400">Topic: {set.topic}</p>
+            <p className="text-sm text-fg-subtle">Topic: {set.topic}</p>
             <button
               onClick={regenerate}
               disabled={isRegenerating}
-              className="rounded-md border border-surface-border px-3 py-1.5 text-xs text-zinc-300 hover:text-accent disabled:opacity-50"
+              className="rounded-md border border-surface-border px-3 py-1.5 text-xs text-fg-muted hover:text-accent disabled:opacity-50"
             >
               {isRegenerating ? "Regenerating..." : "Regenerate"}
             </button>
           </div>
 
           <div>
-            <p className="text-[10px] uppercase tracking-wide text-zinc-500">Description</p>
+            <p className="text-[10px] uppercase tracking-wide text-fg-faint">Description</p>
             <textarea
               value={descriptionDraft}
               onChange={(e) => setDescriptionDraft(e.target.value)}
@@ -179,7 +179,7 @@ export default function DescriptionTagsPage() {
                 }
               }}
               rows={6}
-              className="mt-2 w-full rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-zinc-100"
+              className="mt-2 w-full rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-fg"
             />
           </div>
 
@@ -197,11 +197,11 @@ export default function DescriptionTagsPage() {
           />
 
           <div>
-            <p className="text-[10px] uppercase tracking-wide text-zinc-500">Category</p>
+            <p className="text-[10px] uppercase tracking-wide text-fg-faint">Category</p>
             <select
               value={set.category}
               onChange={(e) => saveField("category", e.target.value)}
-              className="mt-2 w-full rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-zinc-100"
+              className="mt-2 w-full rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-fg"
             >
               {YOUTUBE_CATEGORIES.map((category) => (
                 <option key={category} value={category}>
@@ -212,7 +212,7 @@ export default function DescriptionTagsPage() {
           </div>
 
           <div>
-            <p className="text-[10px] uppercase tracking-wide text-zinc-500">Pinned Comment</p>
+            <p className="text-[10px] uppercase tracking-wide text-fg-faint">Pinned Comment</p>
             <textarea
               value={pinnedCommentDraft}
               onChange={(e) => setPinnedCommentDraft(e.target.value)}
@@ -222,7 +222,7 @@ export default function DescriptionTagsPage() {
                 }
               }}
               rows={2}
-              className="mt-2 w-full rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-zinc-100"
+              className="mt-2 w-full rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-fg"
             />
           </div>
         </div>
@@ -232,7 +232,7 @@ export default function DescriptionTagsPage() {
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             placeholder="Video topic..."
-            className="mt-4 w-full rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-zinc-100"
+            className="mt-4 w-full rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-fg"
           />
           <button
             onClick={generate}

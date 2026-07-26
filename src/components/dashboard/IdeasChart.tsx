@@ -69,11 +69,11 @@ export function IdeasChart({ data }: { data: DailyPoint[] }) {
           }}
         >
           <span className="font-semibold text-zinc-900">{data[hoverIndex].count}</span>{" "}
-          <span className="text-zinc-500">{data[hoverIndex].label}</span>
+          <span className="text-fg-faint">{data[hoverIndex].label}</span>
         </div>
       )}
 
-      <div className="mt-1 flex justify-between text-[10px] text-zinc-400">
+      <div className="mt-1 flex justify-between text-[10px] text-fg-subtle">
         {data.map((d) => (
           <span key={d.label}>{d.label}</span>
         ))}

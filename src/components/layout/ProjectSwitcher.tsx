@@ -32,7 +32,7 @@ export function ProjectSwitcher() {
         switchProject(e.target.value);
         void persistActiveProject(e.target.value);
       }}
-      className="w-full rounded-md border border-surface-border bg-surface-raised px-2 py-1.5 text-sm text-zinc-100"
+      className="w-full rounded-md border border-surface-border bg-surface-raised px-2 py-1.5 text-sm text-fg"
     >
       {projects.map((project) => (
         <option key={project.id} value={project.id}>

@@ -60,33 +60,33 @@ export default function IdeaFinderPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-zinc-100">Idea Finder</h1>
-      <p className="mt-1 text-sm text-zinc-400">Turn a topic into scored video concepts.</p>
+      <h1 className="text-2xl font-bold text-fg">Idea Finder</h1>
+      <p className="mt-1 text-sm text-fg-subtle">Turn a topic into scored video concepts.</p>
 
       <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <input
           value={channelTopic}
           onChange={(e) => setChannelTopic(e.target.value)}
           placeholder="Channel Topic"
-          className="rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-zinc-100"
+          className="rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-fg"
         />
         <input
           value={primaryNiche}
           onChange={(e) => setPrimaryNiche(e.target.value)}
           placeholder="Primary Niche"
-          className="rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-zinc-100"
+          className="rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-fg"
         />
         <input
           value={targetAudience}
           onChange={(e) => setTargetAudience(e.target.value)}
           placeholder="Target Audience"
-          className="rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-zinc-100"
+          className="rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-fg"
         />
         <input
           value={inspirationChannel}
           onChange={(e) => setInspirationChannel(e.target.value)}
           placeholder="Inspiration Channel (optional)"
-          className="rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-zinc-100"
+          className="rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-fg"
         />
       </div>
       <button

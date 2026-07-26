@@ -62,8 +62,8 @@ export default async function DashboardPage() {
   return (
     <div>
       <p className="text-xs font-semibold uppercase tracking-wide text-accent">Analytics Dashboard</p>
-      <h1 className="mt-1 text-3xl font-bold text-zinc-100">{activeProject?.name ?? "My First Channel"}</h1>
-      <p className="mt-2 max-w-xl text-zinc-400">
+      <h1 className="mt-1 text-3xl font-bold text-fg">{activeProject?.name ?? "My First Channel"}</h1>
+      <p className="mt-2 max-w-xl text-fg-subtle">
         A live snapshot of everything ArwaTube AI has generated for this project.
       </p>
 

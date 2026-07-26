@@ -124,14 +124,14 @@ export default function MultiPlatformShortsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-zinc-100">Multi-Platform Shorts</h1>
-      <p className="mt-1 text-sm text-zinc-400">
+      <h1 className="text-2xl font-bold text-fg">Multi-Platform Shorts</h1>
+      <p className="mt-1 text-sm text-fg-subtle">
         Repurpose your video concept into platform-tailored hooks, captions, and hashtags for TikTok, YouTube Shorts,
         Instagram Reels, and Facebook Reels.
       </p>
 
       {isLoading ? (
-        <p className="mt-6 text-sm text-zinc-500">Loading...</p>
+        <p className="mt-6 text-sm text-fg-faint">Loading...</p>
       ) : variants ? (
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {variants.map((variant) => (
@@ -144,7 +144,7 @@ export default function MultiPlatformShortsPage() {
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             placeholder="Video topic..."
-            className="mt-4 w-full rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-zinc-100"
+            className="mt-4 w-full rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-fg"
           />
           <button
             onClick={generate}

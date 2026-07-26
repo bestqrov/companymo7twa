@@ -121,28 +121,28 @@ export default function ThumbnailsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-zinc-100">Thumbnail Studio</h1>
-      <p className="mt-1 text-sm text-zinc-400">Generate and A/B test thumbnails for your video.</p>
+      <h1 className="text-2xl font-bold text-fg">Thumbnail Studio</h1>
+      <p className="mt-1 text-sm text-fg-subtle">Generate and A/B test thumbnails for your video.</p>
 
       <textarea
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
         placeholder="Describe the thumbnail you want..."
         rows={3}
-        className="mt-4 w-full rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-zinc-100"
+        className="mt-4 w-full rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-fg"
       />
 
       <div className="mt-3 flex items-center gap-3">
         <div className="flex overflow-hidden rounded-md border border-surface-border">
           <button
             onClick={() => setMode("single")}
-            className={`px-3 py-1.5 text-xs ${mode === "single" ? "bg-accent text-zinc-900" : "text-zinc-300"}`}
+            className={`px-3 py-1.5 text-xs ${mode === "single" ? "bg-accent text-zinc-900" : "text-fg-muted"}`}
           >
             Single
           </button>
           <button
             onClick={() => setMode("abtest")}
-            className={`px-3 py-1.5 text-xs ${mode === "abtest" ? "bg-accent text-zinc-900" : "text-zinc-300"}`}
+            className={`px-3 py-1.5 text-xs ${mode === "abtest" ? "bg-accent text-zinc-900" : "text-fg-muted"}`}
           >
             A/B Test (4 variations)
           </button>
@@ -156,12 +156,12 @@ export default function ThumbnailsPage() {
         </button>
       </div>
       {error && <p className="mt-2 text-sm text-red-400">{error}</p>}
-      {isRefreshing && <p className="mt-1 text-xs text-zinc-500">Checking for saved thumbnails...</p>}
+      {isRefreshing && <p className="mt-1 text-xs text-fg-faint">Checking for saved thumbnails...</p>}
 
-      {saveToDriveMessage && <p className="mt-2 text-sm text-zinc-400">{saveToDriveMessage}</p>}
+      {saveToDriveMessage && <p className="mt-2 text-sm text-fg-subtle">{saveToDriveMessage}</p>}
 
       {isLoading ? (
-        <p className="mt-6 text-sm text-zinc-500">Loading thumbnails...</p>
+        <p className="mt-6 text-sm text-fg-faint">Loading thumbnails...</p>
       ) : (
         <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
           {thumbnails.map((thumbnail) => (

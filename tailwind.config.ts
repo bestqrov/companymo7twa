@@ -7,12 +7,18 @@ const config: Config = {
     extend: {
       colors: {
         surface: {
-          DEFAULT: "#18181b",
-          raised: "#27272a",
-          border: "#3f3f46",
+          DEFAULT: "var(--color-surface)",
+          raised: "var(--color-surface-raised)",
+          border: "var(--color-surface-border)",
         },
         accent: {
-          DEFAULT: "#a3e635",
+          DEFAULT: "var(--color-accent)",
+        },
+        fg: {
+          DEFAULT: "var(--color-fg)",
+          muted: "var(--color-fg-muted)",
+          subtle: "var(--color-fg-subtle)",
+          faint: "var(--color-fg-faint)",
         },
       },
     },

@@ -24,8 +24,8 @@ export default function ProjectsPage() {
 
   return (
     <div className="max-w-xl">
-      <h1 className="text-2xl font-bold text-zinc-100">Projects</h1>
-      <p className="mt-1 text-sm text-zinc-400">Manage the channels you generate content for.</p>
+      <h1 className="text-2xl font-bold text-fg">Projects</h1>
+      <p className="mt-1 text-sm text-fg-subtle">Manage the channels you generate content for.</p>
 
       <ul className="mt-6 space-y-2">
         {projects.map((project) => (
@@ -33,13 +33,13 @@ export default function ProjectsPage() {
             key={project.id}
             className="flex items-center justify-between rounded-md border border-surface-border bg-surface-raised px-4 py-3"
           >
-            <span className="text-zinc-200">{project.name}</span>
+            <span className="text-fg">{project.name}</span>
             {project.isActive ? (
               <span className="text-xs font-medium text-accent">Active</span>
             ) : (
               <button
                 onClick={() => switchProject(project.id)}
-                className="text-xs text-zinc-400 hover:text-accent"
+                className="text-xs text-fg-subtle hover:text-accent"
               >
                 Switch
               </button>
@@ -53,7 +53,7 @@ export default function ProjectsPage() {
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           placeholder="New channel name"
-          className="flex-1 rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-zinc-100"
+          className="flex-1 rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-fg"
         />
         <button
           onClick={createProject}
