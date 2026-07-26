@@ -157,7 +157,7 @@ export default function SeoTitlesPage() {
               <button
                 key={title}
                 onClick={() => selectTitle(title)}
-                className={`block w-full rounded-md border px-3 py-2 text-left text-sm ${
+                className={`block w-full rounded-md border px-3 py-2 text-start text-sm ${
                   titleSet.selectedTitle === title
                     ? "border-accent bg-accent/10 text-fg"
                     : "border-surface-border bg-surface-raised text-fg-muted hover:text-accent"

@@ -25,7 +25,7 @@ export function ThumbnailCard({
       <div className="relative aspect-video overflow-hidden rounded-md bg-surface">
         <img src={thumbnail.imageUrl} alt="Generated thumbnail" className="h-full w-full object-cover" />
         <span
-          className="absolute right-2 top-2 rounded px-2 py-0.5 text-[10px] font-bold text-zinc-900"
+          className="absolute end-2 top-2 rounded px-2 py-0.5 text-[10px] font-bold text-zinc-900"
           style={{ backgroundColor: ctrColor(thumbnail.ctrEstimate) }}
         >
           CTR {thumbnail.ctrEstimate}%
