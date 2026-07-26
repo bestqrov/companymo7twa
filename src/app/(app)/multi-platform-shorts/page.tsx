@@ -5,10 +5,12 @@ import { useSearchParams } from "next/navigation";
 import { useAppStore } from "@/store/useAppStore";
 import { useWorkflowStore } from "@/store/useWorkflowStore";
 import { PlatformVariantCard, type PlatformVariant } from "@/components/platformVariants/PlatformVariantCard";
+import { useT } from "@/lib/i18n/useTranslation";
 
 const PLATFORM_ORDER: PlatformVariant["platform"][] = ["TIKTOK", "YOUTUBE_SHORTS", "INSTAGRAM_REELS", "FACEBOOK_REELS"];
 
 export default function MultiPlatformShortsPage() {
+  const t = useT();
   const { currentProject } = useAppStore();
   const ideaIdFromUrl = useSearchParams().get("ideaId");
   const ideaIdFromStore = useWorkflowStore((state) => state.selectedIdeaId);
@@ -75,11 +77,11 @@ export default function MultiPlatformShortsPage() {
         setVariants(sortByPlatform(data.platformVariants));
       } else {
         const data = await res.json().catch(() => null);
-        setError(data?.error ?? "Failed to generate shorts. Please try again.");
+        setError(data?.error ?? t("multiPlatformShorts.errorGenerateFailed"));
       }
     } catch (err) {
       console.error("Failed to generate shorts:", err);
-      setError("Failed to generate shorts. Please try again.");
+      setError(t("multiPlatformShorts.errorGenerateFailed"));
     } finally {
       setIsGenerating(false);
     }
@@ -97,11 +99,11 @@ export default function MultiPlatformShortsPage() {
         setVariants((prev) => prev?.map((v) => (v.id === variantId ? data.platformVariant : v)) ?? null);
       } else {
         const data = await res.json().catch(() => null);
-        setError(data?.error ?? "Failed to save changes. Please try again.");
+        setError(data?.error ?? t("multiPlatformShorts.errorSaveFailed"));
       }
     } catch (err) {
       console.error("Failed to save changes:", err);
-      setError("Failed to save changes. Please try again.");
+      setError(t("multiPlatformShorts.errorSaveFailed"));
     }
   }
 
@@ -114,24 +116,21 @@ export default function MultiPlatformShortsPage() {
         setVariants((prev) => prev?.map((v) => (v.id === variantId ? data.platformVariant : v)) ?? null);
       } else {
         const data = await res.json().catch(() => null);
-        setError(data?.error ?? "Failed to regenerate this variant. Please try again.");
+        setError(data?.error ?? t("multiPlatformShorts.errorRegenerateFailed"));
       }
     } catch (err) {
       console.error("Failed to regenerate variant:", err);
-      setError("Failed to regenerate this variant. Please try again.");
+      setError(t("multiPlatformShorts.errorRegenerateFailed"));
     }
   }
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-fg">Multi-Platform Shorts</h1>
-      <p className="mt-1 text-sm text-fg-subtle">
-        Repurpose your video concept into platform-tailored hooks, captions, and hashtags for TikTok, YouTube Shorts,
-        Instagram Reels, and Facebook Reels.
-      </p>
+      <h1 className="text-2xl font-bold text-fg">{t("multiPlatformShorts.title")}</h1>
+      <p className="mt-1 text-sm text-fg-subtle">{t("multiPlatformShorts.subtitle")}</p>
 
       {isLoading ? (
-        <p className="mt-6 text-sm text-fg-faint">Loading...</p>
+        <p className="mt-6 text-sm text-fg-faint">{t("common.loading")}</p>
       ) : variants ? (
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {variants.map((variant) => (
@@ -143,7 +142,7 @@ export default function MultiPlatformShortsPage() {
           <input
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
-            placeholder="Video topic..."
+            placeholder={t("multiPlatformShorts.placeholderTopic")}
             className="mt-4 w-full rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-fg"
           />
           <button
@@ -151,7 +150,7 @@ export default function MultiPlatformShortsPage() {
             disabled={isGenerating || !currentProject || !topic.trim()}
             className="mt-3 rounded-md bg-accent px-4 py-2 text-sm font-medium text-zinc-900 disabled:opacity-50"
           >
-            {isGenerating ? "Generating..." : "Generate Shorts"}
+            {isGenerating ? t("common.generating") : t("multiPlatformShorts.generateButton")}
           </button>
         </>
       )}
