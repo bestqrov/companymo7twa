@@ -6,6 +6,7 @@ import { YOUTUBE_CATEGORIES } from "@/lib/youtubeCategories";
 
 export interface DescriptionTagsGenerationInput {
   topic: string;
+  targetLanguage: string;
   selectedTitle?: string | null;
   keywords?: string[] | null;
 }
@@ -36,6 +37,8 @@ Generate:
 3. A small set of 3-5 relevant hashtags (each starting with #) for the description.
 4. A suggested video category — must be EXACTLY one of these: ${YOUTUBE_CATEGORIES.join(", ")}.
 5. A short pinned-comment suggestion the creator could post to boost engagement (e.g. a question to the audience).
+
+Write the description, tags, hashtags, and pinned comment in ${input.targetLanguage}. The "category" value must still be exactly one of the fixed English category names listed above, regardless of language.
 
 Respond with ONLY a JSON object shaped like:
 {"description": "...", "tags": ["...", ...], "hashtags": ["...", ...], "category": "...", "pinnedComment": "..."}
@@ -102,7 +105,12 @@ async function fetchTitleSetContext(
   return { selectedTitle: titleSet.selectedTitle, keywords: titleSet.keywords };
 }
 
-export async function createDescriptionTagSetForIdeaOrTopic(projectId: string, ideaId: string | null, topic: string) {
+export async function createDescriptionTagSetForIdeaOrTopic(
+  projectId: string,
+  ideaId: string | null,
+  topic: string,
+  targetLanguage: string
+) {
   if (ideaId) {
     const existing = await prisma.descriptionTagSet.findUnique({ where: { ideaId } });
     if (existing) {
@@ -113,7 +121,7 @@ export async function createDescriptionTagSetForIdeaOrTopic(projectId: string, i
   const { selectedTitle, keywords } = await fetchTitleSetContext(ideaId);
 
   const llm = getLlmClient();
-  const raw = await llm.generateText(buildDescriptionTagsPrompt({ topic, selectedTitle, keywords }));
+  const raw = await llm.generateText(buildDescriptionTagsPrompt({ topic, selectedTitle, keywords, targetLanguage }));
   const generated = parseDescriptionTagsResponse(raw);
 
   const descriptionTagSet = await prisma.descriptionTagSet.create({
@@ -132,13 +140,15 @@ export async function createDescriptionTagSetForIdeaOrTopic(projectId: string, i
   return { descriptionTagSet, created: true };
 }
 
-export async function regenerateDescriptionTagSet(descriptionTagSetId: string) {
+export async function regenerateDescriptionTagSet(descriptionTagSetId: string, targetLanguage: string) {
   const existing = await prisma.descriptionTagSet.findUniqueOrThrow({ where: { id: descriptionTagSetId } });
 
   const { selectedTitle, keywords } = await fetchTitleSetContext(existing.ideaId);
 
   const llm = getLlmClient();
-  const raw = await llm.generateText(buildDescriptionTagsPrompt({ topic: existing.topic, selectedTitle, keywords }));
+  const raw = await llm.generateText(
+    buildDescriptionTagsPrompt({ topic: existing.topic, selectedTitle, keywords, targetLanguage })
+  );
   const generated = parseDescriptionTagsResponse(raw);
 
   return prisma.descriptionTagSet.update({

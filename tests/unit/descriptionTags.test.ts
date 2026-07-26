@@ -3,13 +3,14 @@ import { buildDescriptionTagsPrompt, parseDescriptionTagsResponse, YOUTUBE_CATEG
 
 describe("buildDescriptionTagsPrompt", () => {
   it("includes the topic", () => {
-    const prompt = buildDescriptionTagsPrompt({ topic: "Home coffee brewing mistakes" });
+    const prompt = buildDescriptionTagsPrompt({ topic: "Home coffee brewing mistakes", targetLanguage: "English" });
     expect(prompt).toContain("Home coffee brewing mistakes");
   });
 
   it("includes the selected title when provided", () => {
     const prompt = buildDescriptionTagsPrompt({
       topic: "Home coffee brewing mistakes",
+      targetLanguage: "English",
       selectedTitle: "5 Coffee Brewing Mistakes You're Making",
     });
     expect(prompt).toContain("5 Coffee Brewing Mistakes You're Making");
@@ -18,6 +19,7 @@ describe("buildDescriptionTagsPrompt", () => {
   it("includes keywords when provided", () => {
     const prompt = buildDescriptionTagsPrompt({
       topic: "Home coffee brewing mistakes",
+      targetLanguage: "English",
       keywords: ["coffee brewing", "espresso tips"],
     });
     expect(prompt).toContain("coffee brewing");
@@ -25,9 +27,14 @@ describe("buildDescriptionTagsPrompt", () => {
   });
 
   it("omits title and keyword context sections when not provided", () => {
-    const prompt = buildDescriptionTagsPrompt({ topic: "Home coffee brewing mistakes" });
+    const prompt = buildDescriptionTagsPrompt({ topic: "Home coffee brewing mistakes", targetLanguage: "English" });
     expect(prompt).not.toContain("already chosen this title");
     expect(prompt).not.toContain("already researched for this video's SEO");
+  });
+
+  it("includes a language instruction for the given target language", () => {
+    const prompt = buildDescriptionTagsPrompt({ topic: "Home coffee brewing mistakes", targetLanguage: "Arabic" });
+    expect(prompt).toContain("Arabic");
   });
 });
 

@@ -42,7 +42,12 @@ describe("createDescriptionTagSetForIdeaOrTopic", () => {
       data: { userId: user.id, name: "Test Channel", isActive: true, settings: { create: {} } },
     });
 
-    const result = await createDescriptionTagSetForIdeaOrTopic(project.id, null, "Home coffee brewing mistakes");
+    const result = await createDescriptionTagSetForIdeaOrTopic(
+      project.id,
+      null,
+      "Home coffee brewing mistakes",
+      "English"
+    );
 
     expect(result.created).toBe(true);
     expect(result.descriptionTagSet.tags.length).toBeGreaterThan(0);
@@ -68,8 +73,8 @@ describe("createDescriptionTagSetForIdeaOrTopic", () => {
       },
     });
 
-    const first = await createDescriptionTagSetForIdeaOrTopic(project.id, idea.id, "5 Coffee Mistakes");
-    const second = await createDescriptionTagSetForIdeaOrTopic(project.id, idea.id, "5 Coffee Mistakes");
+    const first = await createDescriptionTagSetForIdeaOrTopic(project.id, idea.id, "5 Coffee Mistakes", "English");
+    const second = await createDescriptionTagSetForIdeaOrTopic(project.id, idea.id, "5 Coffee Mistakes", "English");
 
     expect(first.created).toBe(true);
     expect(second.created).toBe(false);
@@ -105,12 +110,24 @@ describe("createDescriptionTagSetForIdeaOrTopic", () => {
       },
     });
 
-    await createDescriptionTagSetForIdeaOrTopic(project.id, idea.id, "5 Coffee Mistakes");
+    await createDescriptionTagSetForIdeaOrTopic(project.id, idea.id, "5 Coffee Mistakes", "English");
 
     expect(generateText).toHaveBeenCalledTimes(1);
     const promptSent = generateText.mock.calls[0][0] as string;
     expect(promptSent).toContain("Stop Ruining Your Coffee");
     expect(promptSent).toContain("coffee brewing");
     expect(promptSent).toContain("espresso tips");
+  });
+
+  it("passes the target language into the prompt sent to the LLM", async () => {
+    const user = await prisma.user.create({ data: { email: "creator-lang@example.com", name: "Creator Lang" } });
+    const project = await prisma.project.create({
+      data: { userId: user.id, name: "Test Channel Lang", isActive: true, settings: { create: {} } },
+    });
+
+    await createDescriptionTagSetForIdeaOrTopic(project.id, null, "Home coffee brewing mistakes", "French");
+
+    const promptSent = generateText.mock.calls[generateText.mock.calls.length - 1][0] as string;
+    expect(promptSent).toContain("French");
   });
 });
