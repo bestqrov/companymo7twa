@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import { useAppStore } from "@/store/useAppStore";
 import { IdeaCard, type Idea } from "@/components/idea-finder/IdeaCard";
+import { useT } from "@/lib/i18n/useTranslation";
 
 export default function IdeaFinderPage() {
   const { currentProject } = useAppStore();
+  const t = useT();
   const [ideas, setIdeas] = useState<Idea[]>([]);
   const [channelTopic, setChannelTopic] = useState("");
   const [primaryNiche, setPrimaryNiche] = useState("");
@@ -26,7 +28,7 @@ export default function IdeaFinderPage() {
   async function generateIdeas() {
     if (!currentProject) return;
     if (!channelTopic.trim() || !primaryNiche.trim() || !targetAudience.trim()) {
-      setGenerateError("Channel Topic, Primary Niche, and Target Audience are required.");
+      setGenerateError(t("ideaFinder.errorRequiredFields"));
       return;
     }
     setIsGenerating(true);
@@ -48,11 +50,11 @@ export default function IdeaFinderPage() {
         setIdeas(data.ideas);
       } else {
         const data = await res.json().catch(() => null);
-        setGenerateError(data?.error ?? "Failed to generate ideas. Please try again.");
+        setGenerateError(data?.error ?? t("ideaFinder.errorGenerateFailed"));
       }
     } catch (error) {
       console.error("Failed to generate ideas:", error);
-      setGenerateError("Failed to generate ideas. Please try again.");
+      setGenerateError(t("ideaFinder.errorGenerateFailed"));
     } finally {
       setIsGenerating(false);
     }
@@ -60,32 +62,32 @@ export default function IdeaFinderPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-fg">Idea Finder</h1>
-      <p className="mt-1 text-sm text-fg-subtle">Turn a topic into scored video concepts.</p>
+      <h1 className="text-2xl font-bold text-fg">{t("ideaFinder.title")}</h1>
+      <p className="mt-1 text-sm text-fg-subtle">{t("ideaFinder.subtitle")}</p>
 
       <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <input
           value={channelTopic}
           onChange={(e) => setChannelTopic(e.target.value)}
-          placeholder="Channel Topic"
+          placeholder={t("ideaFinder.placeholderChannelTopic")}
           className="rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-fg"
         />
         <input
           value={primaryNiche}
           onChange={(e) => setPrimaryNiche(e.target.value)}
-          placeholder="Primary Niche"
+          placeholder={t("ideaFinder.placeholderPrimaryNiche")}
           className="rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-fg"
         />
         <input
           value={targetAudience}
           onChange={(e) => setTargetAudience(e.target.value)}
-          placeholder="Target Audience"
+          placeholder={t("ideaFinder.placeholderTargetAudience")}
           className="rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-fg"
         />
         <input
           value={inspirationChannel}
           onChange={(e) => setInspirationChannel(e.target.value)}
-          placeholder="Inspiration Channel (optional)"
+          placeholder={t("ideaFinder.placeholderInspirationChannel")}
           className="rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-fg"
         />
       </div>
@@ -94,7 +96,7 @@ export default function IdeaFinderPage() {
         disabled={isGenerating || !currentProject}
         className="mt-3 rounded-md bg-accent px-4 py-2 text-sm font-medium text-zinc-900 disabled:opacity-50"
       >
-        {isGenerating ? "Generating..." : "Generate Ideas"}
+        {isGenerating ? t("common.generating") : t("ideaFinder.generateButton")}
       </button>
       {generateError && <p className="mt-2 text-sm text-red-400">{generateError}</p>}
 
