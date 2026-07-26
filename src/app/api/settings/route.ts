@@ -31,3 +31,29 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ ok: true });
 }
+
+export async function GET(request: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(request.url);
+  const projectId = searchParams.get("projectId");
+  if (!projectId) {
+    return NextResponse.json({ error: "projectId is required" }, { status: 400 });
+  }
+
+  const project = await prisma.project.findFirst({
+    where: { id: projectId, userId: session.user.id },
+    include: { settings: true },
+  });
+  if (!project) {
+    return NextResponse.json({ error: "Project not found" }, { status: 404 });
+  }
+
+  return NextResponse.json({
+    targetCountry: project.settings?.targetCountry ?? null,
+    targetLanguage: project.settings?.targetLanguage ?? null,
+  });
+}
