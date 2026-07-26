@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useT } from "@/lib/i18n/useTranslation";
 
 export function ThemeToggle() {
   const [isDark, setIsDark] = useState(false);
+  const t = useT();
 
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains("dark"));
@@ -20,11 +22,13 @@ export function ThemeToggle() {
     }
   }
 
+  const label = isDark ? t("ariaLabels.switchToLightMode") : t("ariaLabels.switchToDarkMode");
+
   return (
     <button
       onClick={toggle}
-      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-      title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      aria-label={label}
+      title={label}
       className="rounded-md border border-surface-border bg-surface-raised px-2 py-1.5 text-sm text-fg hover:text-accent"
     >
       {isDark ? "🌙" : "☀️"}

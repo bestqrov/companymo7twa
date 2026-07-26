@@ -1,6 +1,7 @@
 "use client";
 
 import { useAppStore } from "@/store/useAppStore";
+import { useT } from "@/lib/i18n/useTranslation";
 
 async function persistActiveProject(projectId: string) {
   try {
@@ -19,6 +20,7 @@ async function persistActiveProject(projectId: string) {
 
 export function ProjectSwitcher() {
   const { projects, currentProject, switchProject } = useAppStore();
+  const t = useT();
 
   if (projects.length === 0) {
     return null;
@@ -26,7 +28,7 @@ export function ProjectSwitcher() {
 
   return (
     <select
-      aria-label="Active project"
+      aria-label={t("ariaLabels.activeProject")}
       value={currentProject?.id ?? ""}
       onChange={(e) => {
         switchProject(e.target.value);
