@@ -2,16 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { useAppStore } from "@/store/useAppStore";
+import type { Locale } from "@/store/useAppStore";
 
-const LANGUAGES = [
+const LANGUAGES: { code: Locale; label: string }[] = [
   { code: "en", label: "English" },
   { code: "fr", label: "French" },
   { code: "ar", label: "Arabic" },
 ];
 
 export function LanguageSwitcher() {
-  const { currentProject } = useAppStore();
-  const [targetLanguage, setTargetLanguage] = useState("en");
+  const { currentProject, setLocale } = useAppStore();
+  const [targetLanguage, setTargetLanguage] = useState<Locale>("en");
 
   useEffect(() => {
     if (!currentProject) return;
@@ -20,17 +21,19 @@ export function LanguageSwitcher() {
       .then((data) => {
         if (data.targetLanguage) {
           setTargetLanguage(data.targetLanguage);
+          setLocale(data.targetLanguage);
         }
       })
       .catch((err) => console.error("Failed to load target language:", err));
-  }, [currentProject]);
+  }, [currentProject, setLocale]);
 
   if (!currentProject) {
     return null;
   }
 
-  async function updateLanguage(code: string) {
+  async function updateLanguage(code: Locale) {
     setTargetLanguage(code);
+    setLocale(code);
     try {
       const res = await fetch("/api/settings", {
         method: "POST",
@@ -49,7 +52,7 @@ export function LanguageSwitcher() {
     <select
       aria-label="Target language"
       value={targetLanguage}
-      onChange={(e) => updateLanguage(e.target.value)}
+      onChange={(e) => updateLanguage(e.target.value as Locale)}
       className="rounded-md border border-surface-border bg-surface-raised px-2 py-1.5 text-sm text-fg"
     >
       {LANGUAGES.map((lang) => (
