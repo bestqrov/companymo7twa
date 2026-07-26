@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import { StoreHydrator } from "@/components/layout/StoreHydrator";
+import { LocaleEffects } from "@/components/layout/LocaleEffects";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
@@ -15,6 +16,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <div className="flex h-screen overflow-hidden">
       <StoreHydrator />
+      <LocaleEffects />
       <Sidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
         <Topbar />

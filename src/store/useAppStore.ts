@@ -6,16 +6,21 @@ export interface ProjectSummary {
   isActive: boolean;
 }
 
+export type Locale = "en" | "fr" | "ar";
+
 interface AppState {
   projects: ProjectSummary[];
   currentProject: ProjectSummary | null;
+  locale: Locale;
   setProjects: (projects: ProjectSummary[]) => void;
   switchProject: (projectId: string) => void;
+  setLocale: (locale: Locale) => void;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
   projects: [],
   currentProject: null,
+  locale: "en",
 
   setProjects: (projects) => {
     // Assumes at most one project has isActive: true (enforced server-side).
@@ -33,4 +38,6 @@ export const useAppStore = create<AppState>((set, get) => ({
       currentProject: projects.find((p) => p.id === projectId) ?? null,
     });
   },
+
+  setLocale: (locale) => set({ locale }),
 }));
