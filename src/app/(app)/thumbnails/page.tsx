@@ -5,8 +5,10 @@ import { useSearchParams } from "next/navigation";
 import { useAppStore } from "@/store/useAppStore";
 import { useWorkflowStore } from "@/store/useWorkflowStore";
 import { ThumbnailCard, type Thumbnail } from "@/components/thumbnails/ThumbnailCard";
+import { useT } from "@/lib/i18n/useTranslation";
 
 export default function ThumbnailsPage() {
+  const t = useT();
   const { currentProject } = useAppStore();
   const ideaIdFromUrl = useSearchParams().get("ideaId");
   const ideaIdFromStore = useWorkflowStore((state) => state.selectedIdeaId);
@@ -81,8 +83,8 @@ export default function ThumbnailsPage() {
       } else {
         const data = await res.json().catch(() => null);
         setError(
-          (data?.error ?? "Failed to generate thumbnails. Please try again.") +
-            " Any thumbnails generated before the failure have been saved — reloading now."
+          (data?.error ?? t("thumbnails.errorGenerateFailed")) +
+            t("thumbnails.errorGenerateFailedPartialSuffix")
         );
         // A partial batch may have already been persisted server-side before
         // the failure (thumbnails are saved one at a time, not all-or-nothing —
@@ -92,7 +94,7 @@ export default function ThumbnailsPage() {
       }
     } catch (err) {
       console.error("Failed to generate thumbnails:", err);
-      setError("Failed to generate thumbnails. Please try again. Reloading in case some were saved.");
+      setError(t("thumbnails.errorGenerateFailedReload"));
       await loadThumbnails({ silent: true });
     } finally {
       setIsGenerating(false);
@@ -105,14 +107,14 @@ export default function ThumbnailsPage() {
     try {
       const res = await fetch(`/api/thumbnails/${id}/save-to-drive`, { method: "POST" });
       if (res.ok) {
-        setSaveToDriveMessage("Saved to Drive.");
+        setSaveToDriveMessage(t("thumbnailCard.savedToDriveMessage"));
       } else {
         console.error("Failed to save to Drive:", res.status);
-        setSaveToDriveMessage("Failed to save to Drive. Please try again.");
+        setSaveToDriveMessage(t("thumbnailCard.failedToSaveToDriveMessage"));
       }
     } catch (err) {
       console.error("Failed to save to Drive:", err);
-      setSaveToDriveMessage("Failed to save to Drive. Please try again.");
+      setSaveToDriveMessage(t("thumbnailCard.failedToSaveToDriveMessage"));
     } finally {
       setSavingToDriveId(null);
       setTimeout(() => setSaveToDriveMessage(null), 3000);
@@ -121,13 +123,13 @@ export default function ThumbnailsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-fg">Thumbnail Studio</h1>
-      <p className="mt-1 text-sm text-fg-subtle">Generate and A/B test thumbnails for your video.</p>
+      <h1 className="text-2xl font-bold text-fg">{t("thumbnails.title")}</h1>
+      <p className="mt-1 text-sm text-fg-subtle">{t("thumbnails.subtitle")}</p>
 
       <textarea
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
-        placeholder="Describe the thumbnail you want..."
+        placeholder={t("thumbnails.placeholderPrompt")}
         rows={3}
         className="mt-4 w-full rounded-md border border-surface-border bg-surface-raised px-3 py-2 text-sm text-fg"
       />
@@ -138,13 +140,13 @@ export default function ThumbnailsPage() {
             onClick={() => setMode("single")}
             className={`px-3 py-1.5 text-xs ${mode === "single" ? "bg-accent text-zinc-900" : "text-fg-muted"}`}
           >
-            Single
+            {t("thumbnails.singleMode")}
           </button>
           <button
             onClick={() => setMode("abtest")}
             className={`px-3 py-1.5 text-xs ${mode === "abtest" ? "bg-accent text-zinc-900" : "text-fg-muted"}`}
           >
-            A/B Test (4 variations)
+            {t("thumbnails.abTestMode")}
           </button>
         </div>
         <button
@@ -152,16 +154,16 @@ export default function ThumbnailsPage() {
           disabled={isGenerating || !currentProject || !prompt.trim()}
           className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-zinc-900 disabled:opacity-50"
         >
-          {isGenerating ? "Generating..." : "Generate"}
+          {isGenerating ? t("common.generating") : t("thumbnails.generateButton")}
         </button>
       </div>
       {error && <p className="mt-2 text-sm text-red-400">{error}</p>}
-      {isRefreshing && <p className="mt-1 text-xs text-fg-faint">Checking for saved thumbnails...</p>}
+      {isRefreshing && <p className="mt-1 text-xs text-fg-faint">{t("thumbnails.checkingForSaved")}</p>}
 
       {saveToDriveMessage && <p className="mt-2 text-sm text-fg-subtle">{saveToDriveMessage}</p>}
 
       {isLoading ? (
-        <p className="mt-6 text-sm text-fg-faint">Loading thumbnails...</p>
+        <p className="mt-6 text-sm text-fg-faint">{t("thumbnails.loadingThumbnails")}</p>
       ) : (
         <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
           {thumbnails.map((thumbnail) => (
