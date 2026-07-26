@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { regenerateScriptSection, type ScriptSection } from "@/server/scripts";
+import { resolveLanguageName } from "@/lib/language";
 
 const VALID_SECTIONS = ["hook", "intro", "mainContent", "cta", "ending"];
 
@@ -19,13 +20,15 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
   const script = await prisma.script.findFirst({
     where: { id: params.id, project: { userId: session.user.id } },
+    include: { project: { include: { settings: true } } },
   });
   if (!script) {
     return NextResponse.json({ error: "Script not found" }, { status: 404 });
   }
 
   try {
-    const updated = await regenerateScriptSection(params.id, section as ScriptSection);
+    const targetLanguage = resolveLanguageName(script.project.settings?.targetLanguage);
+    const updated = await regenerateScriptSection(params.id, section as ScriptSection, targetLanguage);
     return NextResponse.json({ script: updated });
   } catch (error) {
     console.error("Failed to regenerate script section:", error);

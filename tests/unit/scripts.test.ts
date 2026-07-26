@@ -3,9 +3,14 @@ import { buildScriptPrompt, parseScriptResponse, buildSectionRegeneratePrompt } 
 
 describe("buildScriptPrompt", () => {
   it("includes the topic and tone", () => {
-    const prompt = buildScriptPrompt({ topic: "Home coffee brewing mistakes", tone: "FAST_PACED" });
+    const prompt = buildScriptPrompt({ topic: "Home coffee brewing mistakes", tone: "FAST_PACED", targetLanguage: "English" });
     expect(prompt).toContain("Home coffee brewing mistakes");
     expect(prompt).toContain("FAST_PACED");
+  });
+
+  it("includes a language instruction for the given target language", () => {
+    const prompt = buildScriptPrompt({ topic: "Home coffee brewing mistakes", tone: "FAST_PACED", targetLanguage: "Arabic" });
+    expect(prompt).toContain("Arabic");
   });
 });
 
@@ -50,9 +55,21 @@ describe("buildSectionRegeneratePrompt", () => {
       tone: "EDUCATIONAL",
       section: "cta",
       currentSectionText: "Please subscribe.",
+      targetLanguage: "English",
     });
     expect(prompt).toContain("Home coffee brewing mistakes");
     expect(prompt).toContain("EDUCATIONAL");
     expect(prompt).toContain("Please subscribe.");
+  });
+
+  it("includes a language instruction for the given target language", () => {
+    const prompt = buildSectionRegeneratePrompt({
+      topic: "Home coffee brewing mistakes",
+      tone: "EDUCATIONAL",
+      section: "cta",
+      currentSectionText: "Please subscribe.",
+      targetLanguage: "French",
+    });
+    expect(prompt).toContain("French");
   });
 });

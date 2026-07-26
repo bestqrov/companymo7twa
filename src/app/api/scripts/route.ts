@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createScriptForIdeaOrTopic } from "@/server/scripts";
+import { resolveLanguageName } from "@/lib/language";
 
 const VALID_TONES = ["ENGAGING", "EDUCATIONAL", "STORYTELLING", "FAST_PACED"];
 
@@ -20,7 +21,10 @@ export async function POST(request: Request) {
     );
   }
 
-  const project = await prisma.project.findFirst({ where: { id: projectId, userId: session.user.id } });
+  const project = await prisma.project.findFirst({
+    where: { id: projectId, userId: session.user.id },
+    include: { settings: true },
+  });
   if (!project) {
     return NextResponse.json({ error: "Project not found" }, { status: 404 });
   }
@@ -38,7 +42,8 @@ export async function POST(request: Request) {
 
   let result;
   try {
-    result = await createScriptForIdeaOrTopic(projectId, resolvedIdeaId, { topic, tone });
+    const targetLanguage = resolveLanguageName(project.settings?.targetLanguage);
+    result = await createScriptForIdeaOrTopic(projectId, resolvedIdeaId, { topic, tone }, targetLanguage);
   } catch (error) {
     console.error("Failed to generate script:", error);
     return NextResponse.json({ error: "Failed to generate script. Please try again." }, { status: 502 });

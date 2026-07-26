@@ -5,6 +5,7 @@ import { getLlmClient } from "@/lib/llm";
 export interface ScriptGenerationInput {
   topic: string;
   tone: ScriptTone;
+  targetLanguage: string;
 }
 
 export interface GeneratedScript {
@@ -44,6 +45,8 @@ Structure the script into exactly 5 sections:
 - mainContent: The core content, written as a series of points. For each point, include a suggested B-roll visual in square brackets, e.g. "Point text here. [B-ROLL: description of footage]".
 - cta: A call-to-action encouraging the viewer to like/subscribe/comment.
 - ending: A short closing line to end the video.
+
+Write the script text (hook, intro, mainContent, cta, ending) in ${input.targetLanguage}. The bracketed [B-ROLL: ...] visual-suggestion notes may stay in English regardless, since they're production notes, not spoken script content.
 
 Respond with ONLY a JSON object shaped like:
 {"hook": "...", "intro": "...", "mainContent": "...", "cta": "...", "ending": "..."}
@@ -92,6 +95,7 @@ export function buildSectionRegeneratePrompt(input: {
   tone: ScriptTone;
   section: ScriptSection;
   currentSectionText: string;
+  targetLanguage: string;
 }): string {
   return `You are a YouTube scriptwriter. Rewrite ONE section of a video script about:
 "${input.topic}"
@@ -103,13 +107,16 @@ Section to rewrite: ${SECTION_LABELS[input.section]}
 Current text for this section (for context — write a fresh alternative, do not just repeat it):
 "${input.currentSectionText}"
 
+Write the new section text in ${input.targetLanguage}.
+
 Respond with ONLY the new text for this section. Do not include any JSON, labels, or text outside the section content itself.`;
 }
 
 export async function createScriptForIdeaOrTopic(
   projectId: string,
   ideaId: string | null,
-  input: { topic: string; tone: ScriptTone }
+  input: { topic: string; tone: ScriptTone },
+  targetLanguage: string
 ) {
   if (ideaId) {
     const existing = await prisma.script.findUnique({ where: { ideaId } });
@@ -119,7 +126,7 @@ export async function createScriptForIdeaOrTopic(
   }
 
   const llm = getLlmClient();
-  const raw = await llm.generateText(buildScriptPrompt(input));
+  const raw = await llm.generateText(buildScriptPrompt({ ...input, targetLanguage }));
   const generated = parseScriptResponse(raw);
 
   const script = await prisma.script.create({
@@ -139,7 +146,7 @@ export async function createScriptForIdeaOrTopic(
   return { script, created: true };
 }
 
-export async function regenerateScriptSection(scriptId: string, section: ScriptSection) {
+export async function regenerateScriptSection(scriptId: string, section: ScriptSection, targetLanguage: string) {
   const script = await prisma.script.findUniqueOrThrow({ where: { id: scriptId } });
 
   const llm = getLlmClient();
@@ -149,6 +156,7 @@ export async function regenerateScriptSection(scriptId: string, section: ScriptS
       tone: script.tone,
       section,
       currentSectionText: script[section],
+      targetLanguage,
     })
   );
 
