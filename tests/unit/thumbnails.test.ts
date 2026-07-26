@@ -83,6 +83,12 @@ describe("buildThumbnailBriefPrompt", () => {
     expect(prompt).toContain("must stay in English regardless");
   });
 
+  it("explicitly includes compositionPattern in the fields that must stay in English", () => {
+    const prompt = buildThumbnailBriefPrompt({ topic: "any topic", variationHint: VARIATION_HINTS[0], targetLanguage: "Arabic" });
+    const englishFieldsSentence = prompt.split("must stay in English regardless")[0];
+    expect(englishFieldsSentence).toContain("compositionPattern");
+  });
+
   it("includes idea/script/title context when provided", () => {
     const prompt = buildThumbnailBriefPrompt({
       topic: "any topic",
