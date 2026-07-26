@@ -1,6 +1,6 @@
 # ArwaTube AI Engine — Target Language Wiring — Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Wire the existing (currently unused) `ProjectSettings.targetLanguage` field into all 6 generation modules (Idea Finder, Script Writer, SEO Titles, Description & Tags, Multi-Platform Shorts, Thumbnail Studio) so generated content is produced in the project's chosen language (English/French/Arabic) instead of always defaulting to English.
 
@@ -55,7 +55,7 @@ tests/
 - Create: `src/lib/language.ts`
 - Test: `tests/unit/language.test.ts`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 // tests/unit/language.test.ts
@@ -89,12 +89,12 @@ describe("resolveLanguageName", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/unit/language.test.ts`
 Expected: FAIL — `Cannot find module '@/lib/language'`
 
-- [ ] **Step 3: Create `src/lib/language.ts`**
+- [x] **Step 3: Create `src/lib/language.ts`**
 
 ```ts
 const LANGUAGE_NAMES: Record<string, string> = {
@@ -109,12 +109,12 @@ export function resolveLanguageName(code: string | null | undefined): string {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/unit/language.test.ts`
 Expected: PASS (6 tests)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/language.ts tests/unit/language.test.ts
@@ -131,7 +131,7 @@ git commit -m "feat: add resolveLanguageName helper for target-language wiring"
 - Modify: `tests/unit/ideas.test.ts`
 - Modify: `tests/integration/ideas.test.ts`
 
-- [ ] **Step 1: Update `src/server/ideas.ts`**
+- [x] **Step 1: Update `src/server/ideas.ts`**
 
 Change the `IdeaGenerationInput` interface (add `targetLanguage`):
 
@@ -210,7 +210,7 @@ export async function createIdeasForProject(
 }
 ```
 
-- [ ] **Step 2: Update `src/app/api/ideas/route.ts`**
+- [x] **Step 2: Update `src/app/api/ideas/route.ts`**
 
 Add the import and resolve/pass the language (the route already fetches `project.settings`):
 
@@ -243,7 +243,7 @@ Change the `try` block inside `POST`:
   }
 ```
 
-- [ ] **Step 3: Update `tests/unit/ideas.test.ts`**
+- [x] **Step 3: Update `tests/unit/ideas.test.ts`**
 
 Add `targetLanguage: "English"` to every existing `buildIdeaPrompt(...)` call (required now that it's on the interface), and add one new test. Replace the entire `describe("buildIdeaPrompt", ...)` block with:
 
@@ -299,7 +299,7 @@ describe("buildIdeaPrompt", () => {
 });
 ```
 
-- [ ] **Step 4: Update `tests/integration/ideas.test.ts`**
+- [x] **Step 4: Update `tests/integration/ideas.test.ts`**
 
 Read the current file first — it mocks `@/lib/llm`'s `generateText` inline (not via `vi.fn`). Convert the mock to a `vi.fn` so a test can inspect the prompt argument, and add one assertion. At the top of the file, replace the `vi.mock("@/lib/llm", ...)` block with:
 
@@ -334,7 +334,7 @@ vi.mock("@/lib/llm", () => ({
   });
 ```
 
-- [ ] **Step 5: Run tests**
+- [x] **Step 5: Run tests**
 
 Run: `npx vitest run tests/unit/ideas.test.ts`
 Expected: PASS (all tests including the new one)
@@ -342,12 +342,12 @@ Expected: PASS (all tests including the new one)
 Run: `npx vitest run tests/integration/ideas.test.ts`
 Expected: PASS, if a live `DATABASE_URL` is reachable; otherwise a DB-connectivity error is an accepted outcome.
 
-- [ ] **Step 6: Run `npx tsc --noEmit`**
+- [x] **Step 6: Run `npx tsc --noEmit`**
 
 Run: `npx tsc --noEmit`
 Expected: no errors.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/server/ideas.ts src/app/api/ideas/route.ts tests/unit/ideas.test.ts tests/integration/ideas.test.ts
@@ -365,7 +365,7 @@ git commit -m "feat: wire target language into Idea Finder generation"
 - Modify: `tests/unit/scripts.test.ts`
 - Modify: `tests/integration/scripts.test.ts`
 
-- [ ] **Step 1: Update `src/server/scripts.ts`**
+- [x] **Step 1: Update `src/server/scripts.ts`**
 
 Change `ScriptGenerationInput` (add `targetLanguage`):
 
@@ -486,7 +486,7 @@ export async function regenerateScriptSection(scriptId: string, section: ScriptS
 }
 ```
 
-- [ ] **Step 2: Update `src/app/api/scripts/route.ts`**
+- [x] **Step 2: Update `src/app/api/scripts/route.ts`**
 
 Add `include: { settings: true }` to the project lookup, import the helper, and thread the language through:
 
@@ -515,7 +515,7 @@ import { resolveLanguageName } from "@/lib/language";
   }
 ```
 
-- [ ] **Step 3: Update `src/app/api/scripts/[id]/regenerate/route.ts`**
+- [x] **Step 3: Update `src/app/api/scripts/[id]/regenerate/route.ts`**
 
 Add `include: { project: { include: { settings: true } } }` to the script lookup, import the helper, and pass the language through:
 
@@ -542,7 +542,7 @@ import { resolveLanguageName } from "@/lib/language";
   }
 ```
 
-- [ ] **Step 4: Update `tests/unit/scripts.test.ts`**
+- [x] **Step 4: Update `tests/unit/scripts.test.ts`**
 
 Add `targetLanguage: "English"` to the existing `buildScriptPrompt` and `buildSectionRegeneratePrompt` calls, and add two new tests. Replace the `describe("buildScriptPrompt", ...)` and `describe("buildSectionRegeneratePrompt", ...)` blocks with:
 
@@ -589,7 +589,7 @@ describe("buildSectionRegeneratePrompt", () => {
 });
 ```
 
-- [ ] **Step 5: Update `tests/integration/scripts.test.ts`**
+- [x] **Step 5: Update `tests/integration/scripts.test.ts`**
 
 Read the current file first. Convert its inline `@/lib/llm` mock to a `vi.fn` (same pattern as Task 2's Idea Finder change) so a test can inspect the prompt, add `generateText.mockClear();` to `beforeEach`, add `"English"` as the trailing argument to every existing `createScriptForIdeaOrTopic(...)` call, and add:
 
@@ -607,7 +607,7 @@ Read the current file first. Convert its inline `@/lib/llm` mock to a `vi.fn` (s
   });
 ```
 
-- [ ] **Step 6: Run tests**
+- [x] **Step 6: Run tests**
 
 Run: `npx vitest run tests/unit/scripts.test.ts`
 Expected: PASS
@@ -615,12 +615,12 @@ Expected: PASS
 Run: `npx vitest run tests/integration/scripts.test.ts`
 Expected: PASS, if a live `DATABASE_URL` is reachable; otherwise a DB-connectivity error is accepted.
 
-- [ ] **Step 7: Run `npx tsc --noEmit`**
+- [x] **Step 7: Run `npx tsc --noEmit`**
 
 Run: `npx tsc --noEmit`
 Expected: no errors.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/server/scripts.ts src/app/api/scripts/route.ts "src/app/api/scripts/[id]/regenerate/route.ts" tests/unit/scripts.test.ts tests/integration/scripts.test.ts
@@ -638,7 +638,7 @@ git commit -m "feat: wire target language into Script Writer generation"
 - Modify: `tests/unit/titles.test.ts`
 - Modify: `tests/integration/titles.test.ts`
 
-- [ ] **Step 1: Update `src/server/titles.ts`**
+- [x] **Step 1: Update `src/server/titles.ts`**
 
 Change `TitleGenerationInput`:
 
@@ -730,7 +730,7 @@ export async function regenerateTitleSet(titleSetId: string, youtubeApiKey: stri
 }
 ```
 
-- [ ] **Step 2: Update `src/app/api/titles/route.ts`**
+- [x] **Step 2: Update `src/app/api/titles/route.ts`**
 
 The route already fetches `settings`. Add the import and resolve/pass the language:
 
@@ -750,7 +750,7 @@ import { resolveLanguageName } from "@/lib/language";
   }
 ```
 
-- [ ] **Step 3: Update `src/app/api/titles/[id]/regenerate/route.ts`**
+- [x] **Step 3: Update `src/app/api/titles/[id]/regenerate/route.ts`**
 
 Already fetches `project.settings`. Add the import and pass the language:
 
@@ -772,7 +772,7 @@ import { resolveLanguageName } from "@/lib/language";
   }
 ```
 
-- [ ] **Step 4: Update `tests/unit/titles.test.ts`**
+- [x] **Step 4: Update `tests/unit/titles.test.ts`**
 
 Add `targetLanguage: "English"` to every existing `buildTitlesPrompt(...)` call, and one new test. Replace `describe("buildTitlesPrompt", ...)` with:
 
@@ -804,7 +804,7 @@ describe("buildTitlesPrompt", () => {
 });
 ```
 
-- [ ] **Step 5: Update `tests/integration/titles.test.ts`**
+- [x] **Step 5: Update `tests/integration/titles.test.ts`**
 
 Convert the inline `generateText` mock to a `vi.fn` (keep the same returned JSON body) so its call arguments can be inspected, add `generateText.mockClear();` to `beforeEach`, add `"English"` as the trailing argument to both existing `createTitleSetForIdeaOrTopic(...)` calls, and add:
 
@@ -822,7 +822,7 @@ Convert the inline `generateText` mock to a `vi.fn` (keep the same returned JSON
   });
 ```
 
-- [ ] **Step 6: Run tests**
+- [x] **Step 6: Run tests**
 
 Run: `npx vitest run tests/unit/titles.test.ts`
 Expected: PASS
@@ -830,12 +830,12 @@ Expected: PASS
 Run: `npx vitest run tests/integration/titles.test.ts`
 Expected: PASS, if a live `DATABASE_URL` is reachable; otherwise a DB-connectivity error is accepted.
 
-- [ ] **Step 7: Run `npx tsc --noEmit`**
+- [x] **Step 7: Run `npx tsc --noEmit`**
 
 Run: `npx tsc --noEmit`
 Expected: no errors.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/server/titles.ts src/app/api/titles/route.ts "src/app/api/titles/[id]/regenerate/route.ts" tests/unit/titles.test.ts tests/integration/titles.test.ts
@@ -853,7 +853,7 @@ git commit -m "feat: wire target language into SEO Titles generation"
 - Modify: `tests/unit/descriptionTags.test.ts`
 - Modify: `tests/integration/descriptionTags.test.ts`
 
-- [ ] **Step 1: Update `src/server/descriptionTags.ts`**
+- [x] **Step 1: Update `src/server/descriptionTags.ts`**
 
 Change `DescriptionTagsGenerationInput`:
 
@@ -959,7 +959,7 @@ export async function regenerateDescriptionTagSet(descriptionTagSetId: string, t
 }
 ```
 
-- [ ] **Step 2: Update `src/app/api/description-tags/route.ts`**
+- [x] **Step 2: Update `src/app/api/description-tags/route.ts`**
 
 Add `include: { settings: true }` (this route doesn't fetch settings today), import the helper, and pass the language:
 
@@ -988,7 +988,7 @@ import { resolveLanguageName } from "@/lib/language";
   }
 ```
 
-- [ ] **Step 3: Update `src/app/api/description-tags/[id]/regenerate/route.ts`**
+- [x] **Step 3: Update `src/app/api/description-tags/[id]/regenerate/route.ts`**
 
 Add `include: { project: { include: { settings: true } } }` to the row lookup (this route doesn't fetch it today), import the helper, and pass the language:
 
@@ -1015,7 +1015,7 @@ import { resolveLanguageName } from "@/lib/language";
   }
 ```
 
-- [ ] **Step 4: Update `tests/unit/descriptionTags.test.ts`**
+- [x] **Step 4: Update `tests/unit/descriptionTags.test.ts`**
 
 Add `targetLanguage: "English"` to every existing `buildDescriptionTagsPrompt(...)` call, and one new test. Replace `describe("buildDescriptionTagsPrompt", ...)` with:
 
@@ -1058,7 +1058,7 @@ describe("buildDescriptionTagsPrompt", () => {
 });
 ```
 
-- [ ] **Step 5: Update `tests/integration/descriptionTags.test.ts`**
+- [x] **Step 5: Update `tests/integration/descriptionTags.test.ts`**
 
 This file already uses `const generateText = vi.fn(async (_prompt: string) => ...)`. Add `"English"` as the trailing argument to every existing `createDescriptionTagSetForIdeaOrTopic(...)` call, and add:
 
@@ -1076,7 +1076,7 @@ This file already uses `const generateText = vi.fn(async (_prompt: string) => ..
   });
 ```
 
-- [ ] **Step 6: Run tests**
+- [x] **Step 6: Run tests**
 
 Run: `npx vitest run tests/unit/descriptionTags.test.ts`
 Expected: PASS
@@ -1084,12 +1084,12 @@ Expected: PASS
 Run: `npx vitest run tests/integration/descriptionTags.test.ts`
 Expected: PASS, if a live `DATABASE_URL` is reachable; otherwise a DB-connectivity error is accepted.
 
-- [ ] **Step 7: Run `npx tsc --noEmit`**
+- [x] **Step 7: Run `npx tsc --noEmit`**
 
 Run: `npx tsc --noEmit`
 Expected: no errors.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/server/descriptionTags.ts src/app/api/description-tags/route.ts "src/app/api/description-tags/[id]/regenerate/route.ts" tests/unit/descriptionTags.test.ts tests/integration/descriptionTags.test.ts
@@ -1107,7 +1107,7 @@ git commit -m "feat: wire target language into Description & Tags generation"
 - Modify: `tests/unit/platformVariants.test.ts`
 - Modify: `tests/integration/platformVariants.test.ts`
 
-- [ ] **Step 1: Update `src/server/platformVariants.ts`**
+- [x] **Step 1: Update `src/server/platformVariants.ts`**
 
 Update `buildPlatformVariantsPrompt` and `buildSinglePlatformVariantPrompt` to accept `targetLanguage` as part of their input, and append the instruction. Replace both functions:
 
@@ -1256,7 +1256,7 @@ export async function regeneratePlatformVariant(variantId: string, targetLanguag
 }
 ```
 
-- [ ] **Step 2: Update `src/app/api/platform-variants/route.ts`**
+- [x] **Step 2: Update `src/app/api/platform-variants/route.ts`**
 
 Add `include: { settings: true }` (this route doesn't fetch settings today):
 
@@ -1285,7 +1285,7 @@ import { resolveLanguageName } from "@/lib/language";
   }
 ```
 
-- [ ] **Step 3: Update `src/app/api/platform-variants/[id]/regenerate/route.ts`**
+- [x] **Step 3: Update `src/app/api/platform-variants/[id]/regenerate/route.ts`**
 
 Add `include: { project: { include: { settings: true } } }` (this route doesn't fetch it today):
 
@@ -1312,7 +1312,7 @@ import { resolveLanguageName } from "@/lib/language";
   }
 ```
 
-- [ ] **Step 4: Update `tests/unit/platformVariants.test.ts`**
+- [x] **Step 4: Update `tests/unit/platformVariants.test.ts`**
 
 Add `targetLanguage: "English"` to every existing `buildPlatformVariantsPrompt(...)` and `buildSinglePlatformVariantPrompt(...)` call. Add these two new tests inside their respective existing `describe` blocks (append, don't remove anything):
 
@@ -1334,7 +1334,7 @@ Add `targetLanguage: "English"` to every existing `buildPlatformVariantsPrompt(.
 
 (add inside `describe("buildSinglePlatformVariantPrompt", ...)`)
 
-- [ ] **Step 5: Update `tests/integration/platformVariants.test.ts`**
+- [x] **Step 5: Update `tests/integration/platformVariants.test.ts`**
 
 This file already uses `const generateText = vi.fn(async (_prompt: string) => ...)`. Add `"English"` as the trailing argument to every existing `createPlatformVariantsForIdeaOrTopic(...)` call, and add:
 
@@ -1352,7 +1352,7 @@ This file already uses `const generateText = vi.fn(async (_prompt: string) => ..
   });
 ```
 
-- [ ] **Step 6: Run tests**
+- [x] **Step 6: Run tests**
 
 Run: `npx vitest run tests/unit/platformVariants.test.ts`
 Expected: PASS
@@ -1360,12 +1360,12 @@ Expected: PASS
 Run: `npx vitest run tests/integration/platformVariants.test.ts`
 Expected: PASS, if a live `DATABASE_URL` is reachable; otherwise a DB-connectivity error is accepted.
 
-- [ ] **Step 7: Run `npx tsc --noEmit`**
+- [x] **Step 7: Run `npx tsc --noEmit`**
 
 Run: `npx tsc --noEmit`
 Expected: no errors.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/server/platformVariants.ts src/app/api/platform-variants/route.ts "src/app/api/platform-variants/[id]/regenerate/route.ts" tests/unit/platformVariants.test.ts tests/integration/platformVariants.test.ts
@@ -1382,7 +1382,7 @@ git commit -m "feat: wire target language into Multi-Platform Shorts generation"
 - Modify: `tests/unit/thumbnails.test.ts`
 - Modify: `tests/integration/thumbnails.test.ts`
 
-- [ ] **Step 1: Update `src/server/thumbnails.ts`**
+- [x] **Step 1: Update `src/server/thumbnails.ts`**
 
 Add `targetLanguage` to `ThumbnailBriefInput`:
 
@@ -1474,7 +1474,7 @@ export async function createThumbnailsForProject(
 }
 ```
 
-- [ ] **Step 2: Update `src/app/api/thumbnails/route.ts`**
+- [x] **Step 2: Update `src/app/api/thumbnails/route.ts`**
 
 Add `include: { settings: true }` (this route doesn't fetch settings today):
 
@@ -1503,7 +1503,7 @@ import { resolveLanguageName } from "@/lib/language";
   }
 ```
 
-- [ ] **Step 3: Update `tests/unit/thumbnails.test.ts`**
+- [x] **Step 3: Update `tests/unit/thumbnails.test.ts`**
 
 Every existing `buildThumbnailBriefPrompt(...)` call needs a `targetLanguage: "English"` field added. Find the existing test that currently reads:
 
@@ -1530,7 +1530,7 @@ Replace that whole test (its premise — topic-language inference — no longer 
 
 Add `targetLanguage: "English"` to every other existing `buildThumbnailBriefPrompt(...)` call in the file (the "includes the topic", "includes the designer-principles boilerplate", "includes the given variation hint", "includes idea/script/title context when provided", "omits context sections when not provided", and "exports exactly 4 variation hints" tests).
 
-- [ ] **Step 4: Update `tests/integration/thumbnails.test.ts`**
+- [x] **Step 4: Update `tests/integration/thumbnails.test.ts`**
 
 Add `"English"` as the trailing argument to every existing `createThumbnailsForProject(...)` call (matching the new signature: `createThumbnailsForProject(projectId, ideaId, input, targetLanguage)`), and add:
 
@@ -1550,7 +1550,7 @@ Add `"English"` as the trailing argument to every existing `createThumbnailsForP
   });
 ```
 
-- [ ] **Step 5: Run tests**
+- [x] **Step 5: Run tests**
 
 Run: `npx vitest run tests/unit/thumbnails.test.ts`
 Expected: PASS
@@ -1558,12 +1558,12 @@ Expected: PASS
 Run: `npx vitest run tests/integration/thumbnails.test.ts`
 Expected: PASS, if a live `DATABASE_URL` is reachable; otherwise a DB-connectivity error is accepted.
 
-- [ ] **Step 6: Run `npx tsc --noEmit`**
+- [x] **Step 6: Run `npx tsc --noEmit`**
 
 Run: `npx tsc --noEmit`
 Expected: no errors.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/server/thumbnails.ts src/app/api/thumbnails/route.ts tests/unit/thumbnails.test.ts tests/integration/thumbnails.test.ts
@@ -1574,12 +1574,12 @@ git commit -m "feat: wire target language into Thumbnail Studio (thumbnailText o
 
 ## Task 8: Final Verification
 
-- [ ] **Step 1: Run the full unit test suite (named files only, never the bare `npm test`)**
+- [x] **Step 1: Run the full unit test suite (named files only, never the bare `npm test`)**
 
 Run: `npx vitest run tests/unit`
 Expected: all unit test files pass, including `tests/unit/language.test.ts` and every module's updated tests.
 
-- [ ] **Step 2: Run every integration test file individually**
+- [x] **Step 2: Run every integration test file individually**
 
 Run each of these separately (never combine into an unscoped `vitest run`):
 ```
@@ -1592,17 +1592,17 @@ npx vitest run tests/integration/thumbnails.test.ts
 ```
 Expected: all PASS if a live, safe-to-use `DATABASE_URL` is available; otherwise DB-connectivity errors are an accepted outcome — do NOT run the bare `npm test` to "double check".
 
-- [ ] **Step 3: Run a full production build**
+- [x] **Step 3: Run a full production build**
 
 Run: `npm run build`
 Expected: succeeds — no route/page changes expected in this plan, this confirms every route file's new `resolveLanguageName` import and every server function's new `targetLanguage` parameter type-check correctly together.
 
-- [ ] **Step 4: Run `npx tsc --noEmit` across the whole project**
+- [x] **Step 4: Run `npx tsc --noEmit` across the whole project**
 
 Run: `npx tsc --noEmit`
 Expected: no errors anywhere in the project.
 
-- [ ] **Step 5: Commit any final fixes**
+- [x] **Step 5: Commit any final fixes**
 
 ```bash
 git add -A
