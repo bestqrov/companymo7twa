@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { decrypt } from "@/lib/crypto";
 import { createIdeasForProject } from "@/server/ideas";
+import { resolveLanguageName } from "@/lib/language";
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
@@ -36,13 +37,19 @@ export async function POST(request: Request) {
   let ideas;
   try {
     const youtubeApiKey = project.settings?.youtubeApiKey ? decrypt(project.settings.youtubeApiKey) : null;
+    const targetLanguage = resolveLanguageName(project.settings?.targetLanguage);
 
-    ideas = await createIdeasForProject(projectId, youtubeApiKey, {
-      channelTopic,
-      primaryNiche,
-      targetAudience,
-      inspirationChannel,
-    });
+    ideas = await createIdeasForProject(
+      projectId,
+      youtubeApiKey,
+      {
+        channelTopic,
+        primaryNiche,
+        targetAudience,
+        inspirationChannel,
+      },
+      targetLanguage
+    );
   } catch (error) {
     console.error("Failed to generate ideas:", error);
     return NextResponse.json({ error: "Failed to generate ideas. Please try again." }, { status: 502 });

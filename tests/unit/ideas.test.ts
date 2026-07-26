@@ -17,6 +17,7 @@ describe("buildIdeaPrompt", () => {
       channelTopic: "Home coffee brewing",
       primaryNiche: "Specialty coffee",
       targetAudience: "Home baristas 25-40",
+      targetLanguage: "English",
     });
 
     expect(prompt).toContain("Home coffee brewing");
@@ -29,6 +30,7 @@ describe("buildIdeaPrompt", () => {
       channelTopic: "Home coffee brewing",
       primaryNiche: "Specialty coffee",
       targetAudience: "Home baristas 25-40",
+      targetLanguage: "English",
       youtubeContext: '- "Top 5 Espresso Tips" (1000000 views)',
     });
 
@@ -40,9 +42,22 @@ describe("buildIdeaPrompt", () => {
       channelTopic: "Home coffee brewing",
       primaryNiche: "Specialty coffee",
       targetAudience: "Home baristas 25-40",
+      targetLanguage: "English",
     });
 
     expect(prompt).not.toContain("real YouTube trend data");
+  });
+
+  it("includes a language instruction for the given target language", () => {
+    const prompt = buildIdeaPrompt({
+      channelTopic: "Home coffee brewing",
+      primaryNiche: "Specialty coffee",
+      targetAudience: "Home baristas 25-40",
+      targetLanguage: "French",
+    });
+
+    expect(prompt).toContain("Write your entire response");
+    expect(prompt).toContain("French");
   });
 });
 

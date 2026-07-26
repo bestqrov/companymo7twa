@@ -7,6 +7,7 @@ export interface IdeaGenerationInput {
   channelTopic: string;
   primaryNiche: string;
   targetAudience: string;
+  targetLanguage: string;
   youtubeContext?: string | null;
 }
 
@@ -28,6 +29,8 @@ export function buildIdeaPrompt(input: IdeaGenerationInput): string {
 - Target audience: ${input.targetAudience}${contextBlock}
 
 For each idea, provide a title, a one-sentence description, a short "hook" (the first line spoken in the video), and a virality score from 0-100 estimating how likely the video is to perform well.
+
+Write your entire response (title, description, hook) in ${input.targetLanguage}.
 
 Respond with ONLY a JSON array of exactly 6 objects, each shaped like:
 {"title": "...", "description": "...", "hook": "...", "viralityScore": 0-100}
@@ -80,7 +83,8 @@ export function determineScoreSource(usedRealYoutubeData: boolean): ScoreSource 
 export async function createIdeasForProject(
   projectId: string,
   youtubeApiKey: string | null,
-  input: { channelTopic: string; primaryNiche: string; targetAudience: string; inspirationChannel?: string }
+  input: { channelTopic: string; primaryNiche: string; targetAudience: string; inspirationChannel?: string },
+  targetLanguage: string
 ) {
   const youtubeContext = !youtubeApiKey
     ? null
@@ -91,7 +95,7 @@ export async function createIdeasForProject(
   const scoreSource = determineScoreSource(youtubeContext !== null);
 
   const llm = getLlmClient();
-  const prompt = buildIdeaPrompt({ ...input, youtubeContext });
+  const prompt = buildIdeaPrompt({ ...input, youtubeContext, targetLanguage });
   const raw = await llm.generateText(prompt);
   const generatedIdeas = parseIdeasResponse(raw);
 
